@@ -58,9 +58,9 @@
         .size-selector input[type="radio"] { display: none; }
         .size-selector label {
             display: inline-flex; justify-content: center; align-items: center;
-            width: 32px; height: 32px; border: 1px solid var(--brand-border);
+            width: 30px; height: 30px; border: 1px solid var(--brand-border);
             border-radius: 4px; cursor: pointer; transition: all 0.2s;
-            font-size: 12px; font-weight: 600; color: var(--brand-text);
+            font-size: 11px; font-weight: 600; color: var(--brand-text);
             background-color: white;
         }
         .size-selector input[type="radio"]:checked + label {
@@ -70,11 +70,10 @@
 
         .color-selector input[type="radio"] { display: none; }
         .color-selector label {
-            display: inline-block; width: 40px; height: 40px; border: 2px solid transparent;
-            border-radius: 4px; cursor: pointer; transition: all 0.2s; overflow: hidden; padding: 2px;
+            display: inline-block; padding: 2px 8px; border: 1px solid var(--brand-border);
+            border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 10px; font-weight: 600; background: white; color: var(--brand-text);
         }
-        .color-selector label img { width: 100%; height: 100%; object-fit: cover; border-radius: 2px; }
-        .color-selector input[type="radio"]:checked + label { border-color: var(--brand-accent); }
+        .color-selector input[type="radio"]:checked + label { background-color: var(--brand-accent); color: white; border-color: var(--brand-accent); }
 
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
         .toast { padding: 12px 24px; border-radius: 4px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.1); animation: slideIn 0.3s forwards; background: var(--brand-text); color: white; font-size: 12px; }
@@ -91,7 +90,7 @@
     </div>
 
     <!-- ============================================== -->
-    <!-- 1. VISTA TIENDA (ESTILO LIMPIO Y VISUAL) -->
+    <!-- 1. VISTA TIENDA -->
     <!-- ============================================== -->
     <div id="vista-tienda">
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
@@ -119,7 +118,6 @@
                 <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-4 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
             </div>
             
-            <!-- Grilla Estilo Tarjetas Limpias -->
             <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5"></div>
         </main>
     </div>
@@ -148,7 +146,7 @@
     <div id="overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/40 z-40 hidden backdrop-blur-sm transition-opacity"></div>
 
     <!-- ============================================== -->
-    <!-- 2. VISTA ADMIN (PANEL MULTI-CANAL AUTÓNOMO) -->
+    <!-- 2. VISTA ADMIN -->
     <!-- ============================================== -->
     <div id="vista-admin">
         <header class="bg-white border-b border-brand-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-sm gap-4">
@@ -170,8 +168,6 @@
         </header>
 
         <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
-            
-            <!-- Barra de Acciones Superiores -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-3 items-center justify-between">
                 <div class="flex flex-wrap gap-2">
                     <button onclick="generarExcelMuestra()" class="bg-stone-100 hover:bg-stone-200 text-brand-text px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-brand-border">
@@ -186,11 +182,10 @@
                     </button>
                 </div>
                 
-                <!-- Subida Masiva de Imágenes en la Web -->
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Seleccioná todas juntas (nombradas por SKU ej: ZBLED.jpg)</span>
+                        <span class="text-[10px] text-brand-text/60">Nombradas con el SKU (ej: 1.jpg)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
                         <i class="fas fa-images mr-1"></i> Seleccionar Imágenes
@@ -199,7 +194,6 @@
                 </div>
             </div>
 
-            <!-- Tabla de Control de Stock -->
             <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
@@ -225,22 +219,24 @@
         let db = { productos: [] };
         
         try { 
-            const s = localStorage.getItem('gesto_hippie_v2'); 
+            const s = localStorage.getItem('gesto_hippie_v3'); 
             if(s) { const p = JSON.parse(s); if(p.productos && p.productos.length > 0) db = p; } 
         } catch(e){}
 
-        // Demo inicial si está vacío
         if(db.productos.length === 0) {
             db.productos = [
                 {
                     id: '1', sku: '1', nombre: 'Zuecos Mules Gamuza Con Hebilla Estribo Suela', precioBase: 50000,
                     talles: [35, 36, 37, 38, 39, 40, 41],
-                    colores: [{ id: 'unico', nombre: 'Suela', img: '' }]
+                    colores: [
+                        { id: 'c1', nombre: 'Suela', img: '' },
+                        { id: 'c2', nombre: 'Beige', img: '' }
+                    ]
                 }
             ];
         }
 
-        function salvar() { localStorage.setItem('gesto_hippie_v2', JSON.stringify(db)); }
+        function salvar() { localStorage.setItem('gesto_hippie_v3', JSON.stringify(db)); }
 
         let carrito = [];
         let seleccionActual = {}; 
@@ -284,34 +280,56 @@
                 }
                 const state = seleccionActual[p.id];
                 const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
-                const imgFinal = colorActivo.img || `https://via.placeholder.com/400/E6DFD5/4A3B32?text=${encodeURIComponent(p.sku)}`;
+                const imgFinal = colorActivo.img || p.colores[0].img || `https://via.placeholder.com/400/E6DFD5/4A3B32?text=SKU+${p.sku}`;
                 
                 return `
                 <div class="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden flex flex-col">
                     <div class="aspect-[4/5] bg-stone-100 relative overflow-hidden border-b border-brand-border">
-                        <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover">
+                        <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover transition-all duration-300" id="img-prod-${p.id}">
                     </div>
                     
                     <div class="p-4 flex flex-col flex-grow justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-1">
                                 <span class="text-[9px] bg-stone-100 text-brand-text font-bold px-2 py-0.5 rounded uppercase border border-brand-border">Zuecos</span>
-                                <span class="text-[9px] text-brand-text/50 font-bold">${p.sku}</span>
+                                <span class="text-[9px] text-brand-text/50 font-bold">SKU: ${p.sku}</span>
                             </div>
-                            <h2 class="font-sans text-xs font-bold text-brand-text mb-3 leading-snug line-clamp-2">${p.nombre}</h2>
+                            <h2 class="font-sans text-xs font-bold text-brand-text mb-2 leading-snug line-clamp-2">${p.nombre}</h2>
                             
-                            <!-- Talles limpios estilo etiqueta -->
+                            <!-- Selector de Variantes de Colores -->
+                            ${p.colores.length > 1 ? `
+                            <div class="mb-2">
+                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent">${colorActivo.nombre}</span></span>
+                                <div class="flex gap-1 color-selector flex-wrap">
+                                    ${p.colores.map(c => `
+                                        <div>
+                                            <input type="radio" name="color-${p.id}" id="col-${p.id}-${c.id}" value="${c.id}" ${c.id === state.color ? 'checked' : ''} onchange="cambiarColor('${p.id}', '${c.id}', '${c.img || p.colores[0].img}')">
+                                            <label for="col-${p.id}-${c.id}">${c.nombre}</label>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>` : ''}
+
+                            <!-- Talles -->
                             <div class="mb-3">
-                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Talles: ${p.talles.join(', ')}</span>
+                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Talles</span>
+                                <div class="flex gap-1 size-selector flex-wrap">
+                                    ${p.talles.map(t => `
+                                        <div>
+                                            <input type="radio" name="talle-${p.id}" id="tal-${p.id}-${t}" value="${t}" ${t === state.talle ? 'checked' : ''} onchange="cambiarTalle('${p.id}', '${t}')">
+                                            <label for="tal-${p.id}-${t}">${t}</label>
+                                        </div>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
 
                         <div>
-                            <div class="mb-3 flex items-center justify-between border-t border-brand-border pt-3">
+                            <div class="mb-2 flex items-center justify-between border-t border-brand-border pt-2">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase">Precio</span>
                                 <span class="text-base font-black text-brand-accent">${formatMoney(p.precioBase)}</span>
                             </div>
-                            <button onclick="addCartModal('${p.id}')" class="w-full bg-brand-accent hover:opacity-90 text-white font-bold text-xs py-2.5 rounded-lg uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2">
+                            <button onclick="addCart('${p.id}')" class="w-full bg-brand-accent hover:opacity-90 text-white font-bold text-xs py-2.5 rounded-lg uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2">
                                 <i class="fas fa-cart-plus"></i> Agregar
                             </button>
                         </div>
@@ -320,8 +338,19 @@
             `}).join('') : '<div class="col-span-full py-20 text-center text-brand-text/40 font-serif text-xl">Sin resultados...</div>';
         }
 
-        // Agregar directo al carrito con selección rápida
-        function addCartModal(prodId) {
+        function cambiarColor(prodId, colorId, imgUrl) {
+            seleccionActual[prodId].color = colorId;
+            const imgEl = document.getElementById(`img-prod-${prodId}`);
+            if(imgEl && imgUrl) {
+                imgEl.src = imgUrl;
+            }
+        }
+
+        function cambiarTalle(prodId, talle) {
+            seleccionActual[prodId].talle = talle;
+        }
+
+        function addCart(prodId) {
             const p = db.productos.find(x => x.id === prodId);
             const s = seleccionActual[prodId] || { talle: p.talles[0], color: p.colores[0].id, qty: 1 };
             const col = p.colores.find(c => c.id === s.color) || p.colores[0];
@@ -333,7 +362,7 @@
             else {
                 carrito.push({
                     key: key, prodNombre: p.nombre, colorNombre: col.nombre,
-                    talle: s.talle, precio: p.precioBase, qty: 1, img: col.img || 'https://via.placeholder.com/80'
+                    talle: s.talle, precio: p.precioBase, qty: 1, img: col.img || p.colores[0].img || 'https://via.placeholder.com/80'
                 });
             }
             updateCartUI(); toast('Agregado al pedido');
@@ -362,7 +391,7 @@
                         <img src="${x.img}" class="w-14 h-14 object-cover rounded-lg border border-brand-border">
                         <div class="flex-grow">
                             <h4 class="text-xs font-bold text-brand-text leading-tight line-clamp-1">${x.prodNombre}</h4>
-                            <p class="text-[10px] text-gray-500 my-0.5">Talle: ${x.talle}</p>
+                            <p class="text-[10px] text-gray-500 my-0.5">Color: ${x.colorNombre} | Talle: ${x.talle}</p>
                             <span class="text-xs font-black text-brand-accent">${x.qty} u. x ${formatMoney(x.precio)}</span>
                         </div>
                         <button onclick="removeCartItem('${x.key}')" class="text-gray-300 hover:text-red-500 p-2"><i class="fas fa-trash text-xs"></i></button>
@@ -387,29 +416,25 @@
             let t = 0;
             carrito.forEach(x => {
                 const sub = x.precio * x.qty; t += sub;
-                txt += `▪ ${x.qty}x ${x.prodNombre} (T: ${x.talle}) - ${formatMoney(sub)}\n`;
+                txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle}) - ${formatMoney(sub)}\n`;
             });
             txt += `\n📦 *TOTAL: ${formatMoney(t)}*`;
             window.open(`https://wa.me/5491121586674?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
-        // ==============================================
-        // ADMIN: EXCEL Y SUBIDA DE FOTOS AUTOMÁTICA
-        // ==============================================
         function generarExcelMuestra() {
             toast('Generando plantilla...');
             const data = [
-                { "SKU": "1", "PRODUCTO": "Zuecos Mules Gamuza Con Hebilla Estribo Suela", "PRECIO": 35000, "TALLES": "35, 36, 37, 38, 39, 40, 41", "COLOR": "Suela" },
-                { "SKU": "2", "PRODUCTO": "Zuecos Mules Gamuza Con Hebilla Estribo Suela Beige", "PRECIO": 35000, "TALLES": "35, 36, 37, 38, 39, 40, 41", "COLOR": "Beige" }
+                { "SKU": "1", "PRODUCTO": "Zuecos Mules Gamuza Con Hebilla Estribo Suela", "PRECIO": 35000, "TALLES": "35, 36, 37, 38, 39, 40, 41", "COLORES": "Suela, Beige, Chocolate" },
+                { "SKU": "2", "PRODUCTO": "Zuecos Mules Rafia Doble Hebilla Tira", "PRECIO": 35000, "TALLES": "35, 36, 37, 38, 39, 40, 41", "COLORES": "Natural, Negro" }
             ];
             const wb = XLSX.utils.book_new();
             const ws = XLSX.utils.json_to_sheet(data);
-            ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}, {wch:15}];
+            ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}, {wch:25}];
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo");
             XLSX.writeFile(wb, "Plantilla_Hippie_Zapatos.xlsx");
         }
 
-        // Subida masiva de imágenes locales sin GitHub
         function subirFotosMasivas(e) {
             const files = e.target.files;
             if(!files.length) return;
@@ -419,13 +444,11 @@
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     const base64 = evt.target.result;
-                    // Extraer SKU del nombre del archivo (ej: "1.jpg" -> SKU "1")
                     const nombreLimpio = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
                     
-                    // Buscar si existe el producto con ese SKU
                     const prod = db.productos.find(p => p.sku.toLowerCase() === nombreLimpio.toLowerCase());
                     if(prod && prod.colores.length > 0) {
-                        prod.colores[0].img = base64; // Asignar imagen en Base64
+                        prod.colores[0].img = base64; 
                     }
                     
                     cargadas++;
@@ -448,7 +471,7 @@
                     let sheet = wb.Sheets[wb.SheetNames[0]]; let json = XLSX.utils.sheet_to_json(sheet, {header:1});
                     let h = json[0].map(x=>String(x||'').toUpperCase().trim());
                     
-                    let cSku = h.indexOf('SKU'), cProd = h.indexOf('PRODUCTO'), cPre = h.indexOf('PRECIO'), cTal = h.indexOf('TALLES'), cCol = h.indexOf('COLOR');
+                    let cSku = h.indexOf('SKU'), cProd = h.indexOf('PRODUCTO'), cPre = h.indexOf('PRECIO'), cTal = h.indexOf('TALLES'), cCol = h.indexOf('COLORES');
                     if(cSku===-1 || cProd===-1 || cPre===-1) throw new Error("Faltan columnas obligatorias (SKU, PRODUCTO, PRECIO).");
                     
                     let nuevosProductos = [];
@@ -458,11 +481,18 @@
                         let nombre = String(row[cProd]).trim();
                         let precio = parseFloat(String(row[cPre]).replace(',','.')) || 0;
                         let rawTalles = cTal !== -1 ? String(row[cTal]||'').split(',').map(x=>x.trim()).filter(x=>x) : ['Único'];
-                        let colorNom = cCol !== -1 ? String(row[cCol]||'General').trim() : 'General';
+                        let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
                         
-                        // Mantener la imagen previa si ya la había subido
                         let prodAnterior = db.productos.find(p => p.sku === sku);
                         let imgPrevia = prodAnterior && prodAnterior.colores[0] ? prodAnterior.colores[0].img : '';
+
+                        let arrayColores = rawColores.map((c, idx) => {
+                            return {
+                                id: 'c-' + idx,
+                                nombre: c,
+                                img: idx === 0 ? imgPrevia : '' // La primera variante hereda la foto principal si la subió por SKU
+                            };
+                        });
 
                         nuevosProductos.push({
                             id: 'id-' + Date.now() + i,
@@ -470,7 +500,7 @@
                             nombre: nombre,
                             precioBase: precio,
                             talles: rawTalles.length ? rawTalles : ['Único'],
-                            colores: [{ id: 'c1', nombre: colorNom, img: imgPrevia }]
+                            colores: arrayColores
                         });
                     }
                     
@@ -494,7 +524,7 @@
                     <td class="px-4 py-3 font-mono text-xs font-bold">${p.sku}</td>
                     <td class="px-4 py-3 font-medium text-xs">${p.nombre}</td>
                     <td class="px-4 py-3 text-right font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
-                    <td class="px-4 py-3 text-[11px] text-gray-500">Talles: [${p.talles.join(', ')}]</td>
+                    <td class="px-4 py-3 text-[11px] text-gray-500">Talles: [${p.talles.join(', ')}] | Colores: [${p.colores.map(c=>c.nombre).join(', ')}]</td>
                 </tr>
             `}).join('');
         }
