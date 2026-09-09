@@ -9,8 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
+    <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- NUEVO: Motor de Base de Datos IndexedDB (Sin límite de 5MB) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -82,11 +85,10 @@
 </head>
 <body class="font-sans antialiased pb-24">
 
-    <!-- Overlay Carga -->
-    <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
+    <div id="carga-overlay" class="fixed inset-0 bg-black/60 flex items-center justify-center z-[99999] backdrop-blur-sm">
         <div class="text-center bg-white p-6 rounded-lg shadow-xl">
             <i class="fas fa-circle-notch fa-spin text-4xl text-brand-accent mb-3"></i>
-            <p class="text-brand-text font-bold text-sm tracking-widest uppercase mt-2">Procesando Fotos...</p>
+            <p id="carga-texto" class="text-brand-text font-bold text-sm tracking-widest uppercase mt-2">Iniciando Base de Datos...</p>
         </div>
     </div>
 
@@ -178,7 +180,7 @@
                         <input type="text" id="input-nombre-tienda" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Fiecci">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp para Pedidos</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp para Pedidos (con 549)</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 5491121586674">
                     </div>
                     <div>
@@ -292,7 +294,7 @@
     <div id="toast-container"></div>
 
     <script>
-        // COMPRESIÓN CON FALLBACK (Resolución max 600px para cuidar memoria al máximo)
+        // COMPRESIÓN CON FALLBACK
         function comprimirImagen(file, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -301,7 +303,7 @@
                     try {
                         const canvas = document.createElement('canvas');
                         let width = img.width; let height = img.height;
-                        const MAX_SIZE = 600;
+                        const MAX_SIZE = 600; // Resolución controlada
 
                         if (width > height && width > MAX_SIZE) {
                             height *= MAX_SIZE / width; width = MAX_SIZE;
@@ -313,7 +315,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Alta compresión
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
                         if (dataUrl === "data:,") throw new Error("Canvas vacio");
                         callback(dataUrl);
                     } catch(err) {
@@ -339,34 +341,52 @@
         };
 
         let db = { config: { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' }, productos: [] };
-        
-        try { 
-            const s = localStorage.getItem('gesto_hippie_v9'); 
-            if(s) { const p = JSON.parse(s); if(p.productos) db = p; } 
-        } catch(e){}
+        let carrito = []; let seleccionActual = {}; let clicksAdmin = 0; let adminTimer = null;
 
-        if(!db.config) db.config = { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' };
+        // INICIALIZACIÓN CON INDEXEDDB (VIA LOCALFORAGE)
+        function initApp() {
+            document.getElementById('carga-overlay').style.display = 'none';
+            if(!db.config) db.config = { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' };
+            
+            if(db.productos.length === 0) {
+                db.productos = [
+                    {
+                        id: '1', sku: '1', nombre: 'Zuecos Mules Suede Profundo', precioBase: 69900,
+                        talles: [35, 36, 37, 38, 39, 40],
+                        colores: [
+                            { id: 'c0', nombre: 'Suela', img: '' },
+                            { id: 'c1', nombre: 'Beige', img: '' },
+                            { id: 'c2', nombre: 'Chocolate', img: '' }
+                        ]
+                    }
+                ];
+            }
 
-        if(db.productos.length === 0) {
-            db.productos = [
-                {
-                    id: '1', sku: '1', nombre: 'Zuecos Mules Suede Profundo', precioBase: 69900,
-                    talles: [35, 36, 37, 38, 39, 40],
-                    colores: [
-                        { id: 'c0', nombre: 'Suela', img: '' },
-                        { id: 'c1', nombre: 'Beige', img: '' },
-                        { id: 'c2', nombre: 'Chocolate', img: '' }
-                    ]
+            actualizarIdentidadVisual();
+            db.productos.forEach(p => {
+                if(p.colores && p.colores.length > 0 && p.talles && p.talles.length > 0) {
+                    if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
                 }
-            ];
+            });
+            renderProductos(); renderStockAdmin();
         }
+
+        // CARGA ASINCRÓNICA AL ABRIR LA PÁGINA
+        document.addEventListener('DOMContentLoaded', () => {
+            localforage.getItem('gesto_hippie_idb').then(function(value) {
+                if (value && value.productos) { db = value; }
+                initApp();
+            }).catch(function(err) {
+                console.error("Error cargando IndexedDB", err);
+                initApp();
+            });
+        });
 
         function salvar() { 
-            try { localStorage.setItem('gesto_hippie_v9', JSON.stringify(db)); } 
-            catch(e) { toast("❌ Memoria llena. Usá el botón Editar para borrar fotos pesadas viejas."); }
+            localforage.setItem('gesto_hippie_idb', db).catch(function(err) {
+                toast("❌ Error al guardar base de datos.");
+            });
         }
-
-        let carrito = []; let seleccionActual = {}; let clicksAdmin = 0; let adminTimer = null;
 
         function triggerAdminSecret() {
             clicksAdmin++; if(adminTimer) clearTimeout(adminTimer);
@@ -403,16 +423,6 @@
         }
 
         const formatMoney = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
-
-        function init() {
-            actualizarIdentidadVisual();
-            db.productos.forEach(p => {
-                if(p.colores && p.colores.length > 0 && p.talles && p.talles.length > 0) {
-                    if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
-                }
-            });
-            renderProductos(); renderStockAdmin();
-        }
 
         function renderProductos() {
             const grid = document.getElementById('grid-productos');
@@ -587,19 +597,18 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Fiecci.xlsx");
         }
 
-        // ASPIRADORA DE ESPACIOS EXTREMA: Arranca múltiples extensiones (1.png.png) y vincula
+        // ASPIRADORA DE ESPACIOS EXTREMA Y CARGA MASIVA ASINCRÓNICA
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
+            document.getElementById('carga-texto').innerText = "Procesando " + files.length + " fotos...";
             document.getElementById('carga-overlay').style.display='flex';
+            
             let cargadas = 0; let vinculadas = 0;
 
             Array.from(files).forEach(file => {
                 comprimirImagen(file, (base64Comprimido) => {
-                    // LIMPIEZA EXTREMA
                     let nombreLimpio = file.name.toLowerCase();
-                    // Quita la extensión real final
                     nombreLimpio = nombreLimpio.substring(0, nombreLimpio.lastIndexOf('.'));
-                    // Quita extensiones si el usuario las tipeó a mano (ej: 1-2.png.png -> 1-2)
                     nombreLimpio = nombreLimpio.replace(/\.(png|jpg|jpeg|webp)$/g, '');
                     nombreLimpio = nombreLimpio.trim();
                     
@@ -615,7 +624,6 @@
                         }
                     }
 
-                    // Buscar el SKU exacto, ignorando espacios en blanco por las dudas
                     const prod = db.productos.find(p => String(p.sku).trim().toLowerCase() === skuBase);
                     if(prod && prod.colores && prod.colores[colorIndex]) {
                         prod.colores[colorIndex].img = base64Comprimido;
@@ -623,15 +631,20 @@
                     }
                     
                     cargadas++;
+                    document.getElementById('carga-texto').innerText = "Procesando " + cargadas + " de " + files.length + "...";
+
                     if(cargadas === files.length) {
-                        salvar(); init();
-                        document.getElementById('carga-overlay').style.display='none';
-                        document.getElementById('input-fotos-masivas').value = '';
-                        if(vinculadas === 0) {
-                            toast(`❌ No se vinculó ninguna foto. Revisa que el nombre (ej. "1" o "1-2") sea idéntico al SKU.`);
-                        } else {
-                            toast(`¡Proceso terminado! ${vinculadas} fotos vinculadas 📸`);
-                        }
+                        salvar(); 
+                        setTimeout(() => {
+                            initApp(); // Recarga la UI
+                            document.getElementById('carga-overlay').style.display='none';
+                            document.getElementById('input-fotos-masivas').value = '';
+                            if(vinculadas === 0) {
+                                toast(`❌ No se vinculó ninguna foto. Revisa los SKU.`);
+                            } else {
+                                toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`);
+                            }
+                        }, 500);
                     }
                 });
             });
@@ -639,6 +652,7 @@
 
         function importarExcel(e) {
             let f = e.target.files[0]; if(!f) return;
+            document.getElementById('carga-texto').innerText = "Procesando Excel...";
             document.getElementById('carga-overlay').style.display='flex';
             let r = new FileReader();
             r.onload = function(evt) {
@@ -674,7 +688,7 @@
                     }
                     
                     if(nuevosProductos.length > 0) {
-                        db.productos = nuevosProductos; salvar(); init(); toast("Excel importado ✅");
+                        db.productos = nuevosProductos; salvar(); initApp(); toast("Excel importado ✅");
                     } else { toast("El Excel está vacío."); }
                 } catch(err) { toast("❌ Error: " + err.message); } 
                 finally { document.getElementById('carga-overlay').style.display='none'; e.target.value=''; }
@@ -730,11 +744,11 @@
             p.precioBase = parseFloat(document.getElementById('edit-precio').value) || 0;
             p.talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x);
             if(p.talles.length === 0) p.talles = ['Único'];
-            salvar(); init(); cerrarModalEdicion(); toast('Cambios guardados ✏️');
+            salvar(); initApp(); cerrarModalEdicion(); toast('Cambios guardados ✏️');
         }
 
         function eliminarProducto(id) {
-            if(confirm('¿Eliminar este producto?')) { db.productos = db.productos.filter(x => x.id !== id); salvar(); init(); toast('Producto eliminado 🗑️'); }
+            if(confirm('¿Eliminar este producto?')) { db.productos = db.productos.filter(x => x.id !== id); salvar(); initApp(); toast('Producto eliminado 🗑️'); }
         }
 
         function renderStockAdmin() {
@@ -757,13 +771,11 @@
         }
 
         function cerrarSesion() { document.body.classList.remove('modo-admin'); }
-        function vaciarDB() { if(confirm('¿Seguro querés vaciar todo?')) { db.productos=[]; salvar(); init(); toast('Base vaciada.'); } }
+        function vaciarDB() { if(confirm('¿Seguro querés vaciar todo?')) { db.productos=[]; salvar(); initApp(); toast('Base vaciada.'); } }
         function toast(m) { 
             const c=document.getElementById('toast-container'), d=document.createElement('div'); d.className='toast'; d.innerHTML=`<i class="fas fa-info-circle mr-2"></i> ${m}`; 
             c.appendChild(d); setTimeout(()=>{ d.style.animation='slideIn 0.3s reverse forwards'; setTimeout(()=>d.remove(),300); }, 3500); 
         }
-
-        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
