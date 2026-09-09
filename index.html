@@ -219,7 +219,7 @@
                         <span class="text-[10px] text-brand-text/60">Ej: 1.jpg (1º color), 1-2.jpg (2º color)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
-                        <i class="fas fa-images mr-1"></i> Seleccionar Imágenes
+                        <i class="fas fa-arrow-up mr-1"></i> Seleccionar Imágenes
                         <input type="file" id="input-fotos-masivas" accept="image/*" multiple class="hidden" onchange="subirFotosMasivas(event)">
                     </label>
                 </div>
@@ -260,7 +260,7 @@
         };
         
         try { 
-            const s = localStorage.getItem('gesto_hippie_v5'); 
+            const s = localStorage.getItem('gesto_hippie_v6'); 
             if(s) { const p = JSON.parse(s); if(p.productos) db = p; } 
         } catch(e){}
 
@@ -272,15 +272,15 @@
                     id: '1', sku: '1', nombre: 'Zuecos Mules Suede Profundo', precioBase: 69900,
                     talles: [35, 36, 37, 38, 39, 40],
                     colores: [
-                        { id: 'c0', nombre: 'Café Suede', img: '' },
-                        { id: 'c1', nombre: 'Terracota', img: '' },
-                        { id: 'c2', nombre: 'Oliva', img: '' }
+                        { id: 'c0', nombre: 'Suela', img: '' },
+                        { id: 'c1', nombre: 'Beige', img: '' },
+                        { id: 'c2', nombre: 'Chocolate', img: '' }
                     ]
                 }
             ];
         }
 
-        function salvar() { localStorage.setItem('gesto_hippie_v5', JSON.stringify(db)); }
+        function salvar() { localStorage.setItem('gesto_hippie_v6', JSON.stringify(db)); }
 
         let carrito = [];
         let seleccionActual = {}; 
@@ -372,11 +372,11 @@
                             <!-- Selector de Variantes de Colores -->
                             ${p.colores.length > 1 ? `
                             <div class="mb-2">
-                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent">${colorActivo.nombre}</span></span>
+                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent uppercase" id="label-color-${p.id}">${colorActivo.nombre}</span></span>
                                 <div class="flex gap-1 color-selector flex-wrap">
                                     ${p.colores.map(c => `
                                         <div>
-                                            <input type="radio" name="color-${p.id}" id="col-${p.id}-${c.id}" value="${c.id}" ${c.id === state.color ? 'checked' : ''} onchange="cambiarColor('${p.id}', '${c.id}', '${c.img || p.colores[0].img}')">
+                                            <input type="radio" name="color-${p.id}" id="col-${p.id}-${c.id}" value="${c.id}" ${c.id === state.color ? 'checked' : ''} onchange="cambiarColor('${p.id}', '${c.id}', '${c.nombre}', '${c.img || p.colores[0].img}')">
                                             <label for="col-${p.id}-${c.id}">${c.nombre}</label>
                                         </div>
                                     `).join('')}
@@ -411,11 +411,15 @@
             `}).join('') : '<div class="col-span-full py-20 text-center text-brand-text/40 font-serif text-xl">Sin resultados...</div>';
         }
 
-        function cambiarColor(prodId, colorId, imgUrl) {
+        function cambiarColor(prodId, colorId, colorNombre, imgUrl) {
             seleccionActual[prodId].color = colorId;
             const imgEl = document.getElementById(`img-prod-${prodId}`);
             if(imgEl && imgUrl) {
                 imgEl.src = imgUrl;
+            }
+            const labelEl = document.getElementById(`label-color-${prodId}`);
+            if(labelEl) {
+                labelEl.innerText = colorNombre;
             }
         }
 
@@ -518,7 +522,7 @@
         function generarExcelMuestra() {
             toast('Generando plantilla...');
             const data = [
-                { "SKU": "1", "PRODUCTO": "Zuecos Mules Suede Profundo", "PRECIO": 69900, "TALLES": "35, 36, 37, 38, 39, 40", "COLORES": "Café Suede, Terracota, Oliva" },
+                { "SKU": "1", "PRODUCTO": "Zuecos Mules Suede Profundo", "PRECIO": 69900, "TALLES": "35, 36, 37, 38, 39, 40", "COLORES": "Suela, Beige, Chocolate" },
                 { "SKU": "2", "PRODUCTO": "Zuecos Mules Rafia Yute", "PRECIO": 55000, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Yute Cremoso, Negro" }
             ];
             const wb = XLSX.utils.book_new();
