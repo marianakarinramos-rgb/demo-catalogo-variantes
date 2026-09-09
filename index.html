@@ -97,7 +97,7 @@
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
             <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
                 
-                <!-- TRUCO A PRUEBA DE PAVOS: Clic 3 veces seguidas al logo abre el admin -->
+                <!-- Acceso Secreto: Clic 3 veces al logo HZ -->
                 <div class="flex items-center gap-4 cursor-pointer select-none" onclick="triggerAdminSecret()" title="Catálogo Oficial">
                     <div class="w-12 h-12 rounded-full border-2 border-brand-border flex items-center justify-center overflow-hidden bg-brand-bg">
                         <span class="font-serif font-bold text-xl leading-none text-brand-text">HZ</span>
@@ -156,17 +156,23 @@
                 <div class="w-10 h-10 bg-brand-accent text-white rounded-sm flex items-center justify-center text-lg"><i class="fas fa-database"></i></div>
                 <div>
                     <h2 class="font-serif text-xl text-brand-text leading-tight">Admin | Catálogo Matricial</h2>
-                    <span class="text-[10px] text-brand-text/60 font-bold uppercase tracking-widest">Panel de Fábrica (Secreto)</span>
+                    <span class="text-[10px] text-brand-text/60 font-bold uppercase tracking-widest">Panel de Fábrica</span>
                 </div>
             </div>
-            <button onclick="cerrarSesion()" class="bg-brand-text hover:bg-brand-accent text-white px-4 py-2.5 rounded-sm text-xs font-bold transition flex items-center shadow-sm uppercase tracking-wider">
-                <i class="fas fa-eye mr-2"></i> Ver Tienda
-            </button>
+            <div class="flex gap-2">
+                <!-- Botón para abrir la tienda al lado (en pestaña nueva) para iterar rápido -->
+                <a href="./" target="_blank" class="bg-brand-bg hover:bg-brand-border text-brand-text border border-brand-border px-4 py-2.5 rounded-sm text-xs font-bold transition flex items-center shadow-sm uppercase tracking-wider">
+                    <i class="fas fa-external-link-alt mr-2"></i> Abrir Tienda al Lado
+                </a>
+                <button onclick="cerrarSesion()" class="bg-brand-text hover:bg-brand-accent text-white px-4 py-2.5 rounded-sm text-xs font-bold transition flex items-center shadow-sm uppercase tracking-wider">
+                    <i class="fas fa-eye mr-2"></i> Ocultar Admin
+                </button>
+            </div>
         </header>
 
         <main class="flex-1 max-w-6xl mx-auto w-full p-6 space-y-8">
             
-            <!-- Selector de Paleta -->
+            <!-- Selector de Paleta (Solo temas cálidos/boho) -->
             <div class="bg-white border border-brand-border rounded-sm p-6 shadow-sm">
                 <h3 class="font-serif text-lg text-brand-text mb-3">🎨 Personalizar Paleta de Colores</h3>
                 <p class="text-xs text-brand-text/70 mb-4">Elegí la combinación ideal para la marca:</p>
@@ -174,7 +180,6 @@
                     <button onclick="aplicarTema('clasico')" class="px-4 py-2 bg-[#F2E8DA] text-[#593C31] border border-[#DFD0BB] font-bold text-xs rounded-sm">Yute & Suede (Original)</button>
                     <button onclick="aplicarTema('terracota')" class="px-4 py-2 bg-[#FDF8F5] text-[#B35A49] border border-[#E8D4CE] font-bold text-xs rounded-sm">Terracota & Crema</button>
                     <button onclick="aplicarTema('olive')" class="px-4 py-2 bg-[#F4F5F0] text-[#5A6039] border border-[#D5D8C8] font-bold text-xs rounded-sm">Oliva Botánico</button>
-                    <button onclick="aplicarTema('nero')" class="px-4 py-2 bg-[#1A1A1A] text-[#E0E0E0] border border-[#333] font-bold text-xs rounded-sm">Minimal Dark</button>
                 </div>
             </div>
 
@@ -227,8 +232,7 @@
         const temas = {
             clasico: { bg: '#F2E8DA', text: '#593C31', accent: '#CB6D3E', border: '#DFD0BB' },
             terracota: { bg: '#FDF8F5', text: '#B35A49', accent: '#D97757', border: '#E8D4CE' },
-            olive: { bg: '#F4F5F0', text: '#5A6039', accent: '#8A915C', border: '#D5D8C8' },
-            nero: { bg: '#1A1A1A', text: '#F2E8DA', accent: '#CB6D3E', border: '#333333' }
+            olive: { bg: '#F4F5F0', text: '#5A6039', accent: '#8A915C', border: '#D5D8C8' }
         };
 
         function aplicarTema(nombre) {
@@ -269,7 +273,6 @@
         let clicksAdmin = 0;
         let adminTimer = null;
 
-        // ACCESO SECRETO A PRUEBA DE PAVOS (3 Clics rápidos al logo HZ)
         function triggerAdminSecret() {
             clicksAdmin++;
             if(adminTimer) clearTimeout(adminTimer);
