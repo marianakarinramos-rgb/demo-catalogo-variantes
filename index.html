@@ -82,10 +82,11 @@
 </head>
 <body class="font-sans antialiased pb-24">
 
+    <!-- Overlay Carga -->
     <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
         <div class="text-center bg-white p-6 rounded-lg shadow-xl">
             <i class="fas fa-circle-notch fa-spin text-4xl text-brand-accent mb-3"></i>
-            <p class="text-brand-text font-bold text-sm tracking-widest uppercase">Procesando...</p>
+            <p class="text-brand-text font-bold text-sm tracking-widest uppercase mt-2">Procesando Fotos...</p>
         </div>
     </div>
 
@@ -139,7 +140,7 @@
                 <h3 class="text-2xl font-serif text-brand-accent" id="total-carrito">$0</h3>
             </div>
             <button onclick="enviarPedido()" class="w-full bg-brand-accent hover:opacity-90 text-white py-3.5 rounded-lg font-bold shadow-md transition text-sm tracking-wider uppercase flex justify-center items-center gap-2">
-                <i class="fab fa-whatsapp text-lg"></i> Enviar Pedido por WhatsApp
+                <i class="fab fa-whatsapp text-lg"></i> Enviar Pedido
             </button>
         </div>
     </div>
@@ -169,7 +170,6 @@
 
         <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
             
-            <!-- Configuración -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm space-y-4">
                 <h3 class="font-serif text-lg text-brand-text">⚙️ Identidad de la Marca y WhatsApp</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -182,7 +182,7 @@
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 5491121586674">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta PANTONE</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta PANTONE (Estilo)</label>
                         <select id="select-paleta" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent bg-white">
                             <option value="suede">Deep Suede Brown (Café)</option>
                             <option value="terracota">Warm Terracotta (Terracota)</option>
@@ -198,34 +198,32 @@
                 </div>
             </div>
 
-            <!-- Carga de Excel -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-3 items-center justify-between">
                 <div class="flex flex-wrap gap-2">
                     <button onclick="generarExcelMuestra()" class="bg-stone-100 hover:bg-stone-200 text-brand-text px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-brand-border">
-                        <i class="fas fa-download mr-2 text-brand-accent"></i> Descargar Plantilla Excel
+                        <i class="fas fa-download mr-2 text-brand-accent"></i> Bajar Plantilla
                     </button>
                     <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center shadow-sm">
                         <i class="fas fa-file-excel mr-2"></i> Subir Excel
                         <input type="file" accept=".xlsx" class="hidden" onchange="importarExcel(event)">
                     </label>
                     <button onclick="vaciarDB()" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-red-200">
-                        <i class="fas fa-trash-alt mr-2"></i> Vaciar
+                        <i class="fas fa-trash-alt mr-2"></i> Vaciar DB
                     </button>
                 </div>
                 
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Ej: 1.jpg (1º color), 1-2.jpg (2º color)</span>
+                        <span class="text-[10px] text-brand-text/60">Sube todas juntas (se limpian los espacios)</span>
                     </div>
-                    <label class="bg-brand-accent hover:opacity-90 text-white px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
-                        <i class="fas fa-arrow-up mr-1"></i> Subir Fotos
+                    <label class="bg-brand-accent hover:opacity-90 text-white px-4 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
+                        <i class="fas fa-arrow-up mr-2"></i> Subir Fotos
                         <input type="file" id="input-fotos-masivas" accept="image/*" multiple class="hidden" onchange="subirFotosMasivas(event)">
                     </label>
                 </div>
             </div>
 
-            <!-- Tabla de Control con Edición Individual -->
             <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
@@ -280,9 +278,7 @@
 
                 <div class="border-t border-brand-border pt-4 mt-4">
                     <label class="block text-xs font-bold uppercase tracking-wider text-brand-text mb-3">🖼️ Fotos por Color</label>
-                    <div id="edit-colores-container" class="space-y-3">
-                        <!-- Generado dinámicamente -->
-                    </div>
+                    <div id="edit-colores-container" class="space-y-3"></div>
                 </div>
             </div>
             
@@ -296,34 +292,43 @@
     <div id="toast-container"></div>
 
     <script>
-        // MOTOR DE COMPRESIÓN DE IMÁGENES (Evita que el localStorage colapse)
+        // COMPRESIÓN CON FALLBACK (Resolución max 600px para cuidar memoria al máximo)
         function comprimirImagen(file, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width; 
-                    let height = img.height;
-                    const MAX_SIZE = 800; // Máxima resolución para catálogo ligero
+                    try {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        const MAX_SIZE = 600;
 
-                    if (width > height && width > MAX_SIZE) {
-                        height *= MAX_SIZE / width; width = MAX_SIZE;
-                    } else if (height > MAX_SIZE) {
-                        width *= MAX_SIZE / height; height = MAX_SIZE;
+                        if (width > height && width > MAX_SIZE) {
+                            height *= MAX_SIZE / width; width = MAX_SIZE;
+                        } else if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height; height = MAX_SIZE;
+                        }
+
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // Alta compresión
+                        if (dataUrl === "data:,") throw new Error("Canvas vacio");
+                        callback(dataUrl);
+                    } catch(err) {
+                        callback(e.target.result); 
                     }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Exportar a JPG con 60% de calidad (Pesa aprox 30kb - 50kb)
-                    callback(canvas.toDataURL('image/jpeg', 0.6));
                 }
+                img.onerror = function() { callback(e.target.result); }
                 img.src = e.target.result;
             }
             reader.readAsDataURL(file);
+        }
+
+        function getPlaceholder(text) {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="100%" height="100%" fill="#E6DFD5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold" fill="#4A3B32">${text}</text></svg>`;
+            return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
         }
 
         const paletasPantone = {
@@ -336,7 +341,7 @@
         let db = { config: { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' }, productos: [] };
         
         try { 
-            const s = localStorage.getItem('gesto_hippie_v7'); 
+            const s = localStorage.getItem('gesto_hippie_v9'); 
             if(s) { const p = JSON.parse(s); if(p.productos) db = p; } 
         } catch(e){}
 
@@ -357,23 +362,16 @@
         }
 
         function salvar() { 
-            try {
-                localStorage.setItem('gesto_hippie_v7', JSON.stringify(db)); 
-            } catch(e) {
-                toast("❌ Memoria llena. No subas fotos tan pesadas o vaciá la DB.");
-            }
+            try { localStorage.setItem('gesto_hippie_v9', JSON.stringify(db)); } 
+            catch(e) { toast("❌ Memoria llena. Usá el botón Editar para borrar fotos pesadas viejas."); }
         }
 
-        let carrito = [];
-        let seleccionActual = {}; 
-        let clicksAdmin = 0;
-        let adminTimer = null;
+        let carrito = []; let seleccionActual = {}; let clicksAdmin = 0; let adminTimer = null;
 
         function triggerAdminSecret() {
-            clicksAdmin++;
-            if(adminTimer) clearTimeout(adminTimer);
+            clicksAdmin++; if(adminTimer) clearTimeout(adminTimer);
             if(clicksAdmin >= 3) {
-                clicksAdmin = 0; document.body.classList.add('modo-admin'); toast('🔓 Panel Admin de Tienda abierto'); return;
+                clicksAdmin = 0; document.body.classList.add('modo-admin'); toast('🔓 Panel Admin abierto'); return;
             }
             adminTimer = setTimeout(() => { clicksAdmin = 0; }, 600);
         }
@@ -401,7 +399,7 @@
             db.config.nombre = document.getElementById('input-nombre-tienda').value.trim() || 'Tienda';
             db.config.whatsapp = document.getElementById('input-whatsapp').value.trim() || '5491121586674';
             db.config.paleta = document.getElementById('select-paleta').value;
-            salvar(); actualizarIdentidadVisual(); toast('¡Configuración guardada con éxito! ✨');
+            salvar(); actualizarIdentidadVisual(); toast('¡Configuración guardada! ✨');
         }
 
         const formatMoney = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
@@ -425,12 +423,14 @@
                 if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
                 const state = seleccionActual[p.id];
                 const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
-                const imgFinal = colorActivo.img || p.colores[0].img || `https://via.placeholder.com/400/E6DFD5/4A3B32?text=SKU+${p.sku}`;
+                
+                let imgFinal = colorActivo.img || p.colores[0].img;
+                if(!imgFinal || imgFinal.length < 100) imgFinal = getPlaceholder('SKU ' + p.sku);
                 
                 return `
                 <div class="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden flex flex-col">
                     <div class="aspect-[4/5] bg-stone-100 relative overflow-hidden border-b border-brand-border">
-                        <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover transition-all duration-300" id="img-prod-${p.id}">
+                        <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover transition-all duration-300" id="img-prod-${p.id}" onerror="this.src='${getPlaceholder('SKU '+p.sku)}'">
                     </div>
                     
                     <div class="p-4 flex flex-col flex-grow justify-between">
@@ -447,7 +447,7 @@
                                 <div class="flex gap-1 color-selector flex-wrap">
                                     ${p.colores.map(c => `
                                         <div>
-                                            <input type="radio" name="color-${p.id}" id="col-${p.id}-${c.id}" value="${c.id}" ${c.id === state.color ? 'checked' : ''} onchange="cambiarColor('${p.id}', '${c.id}', '${c.nombre}', '${c.img || p.colores[0].img}')">
+                                            <input type="radio" name="color-${p.id}" id="col-${p.id}-${c.id}" value="${c.id}" ${c.id === state.color ? 'checked' : ''} onchange="cambiarColor('${p.id}', '${c.id}', '${c.nombre}', '${c.img || p.colores[0].img || ''}')">
                                             <label for="col-${p.id}-${c.id}">${c.nombre}</label>
                                         </div>
                                     `).join('')}
@@ -483,8 +483,13 @@
 
         function cambiarColor(prodId, colorId, colorNombre, imgUrl) {
             seleccionActual[prodId].color = colorId;
+            const p = db.productos.find(x => x.id === prodId);
             const imgEl = document.getElementById(`img-prod-${prodId}`);
-            if(imgEl && imgUrl) imgEl.src = imgUrl;
+            
+            if(imgEl) {
+                if(imgUrl && imgUrl.length > 100) imgEl.src = imgUrl;
+                else imgEl.src = getPlaceholder('SKU ' + (p ? p.sku : ''));
+            }
             const labelEl = document.getElementById(`label-color-${prodId}`);
             if(labelEl) labelEl.innerText = colorNombre;
         }
@@ -493,16 +498,17 @@
 
         function addCart(prodId) {
             const p = db.productos.find(x => x.id === prodId);
-            const s = seleccionActual[prodId];
-            const col = p.colores.find(c => c.id === s.color);
+            const s = seleccionActual[prodId]; const col = p.colores.find(c => c.id === s.color);
             const key = `${prodId}|${s.color}|${s.talle}`;
             const ex = carrito.find(x => x.key === key);
             
             if (ex) ex.qty += 1;
             else {
+                let finalImg = col.img || p.colores[0].img;
+                if(!finalImg || finalImg.length < 100) finalImg = getPlaceholder(p.sku);
                 carrito.push({
                     key: key, prodNombre: p.nombre, colorNombre: col.nombre, talle: s.talle,
-                    precio: p.precioBase, qty: 1, img: col.img || p.colores[0].img || 'https://via.placeholder.com/80'
+                    precio: p.precioBase, qty: 1, img: finalImg
                 });
             }
             updateCartUI(); toast('Agregado al pedido');
@@ -511,10 +517,7 @@
 
         function modCarItem(key, delta) {
             const item = carrito.find(x => x.key === key);
-            if(item) {
-                item.qty += delta;
-                if(item.qty <= 0) carrito = carrito.filter(x => x.key !== key);
-            }
+            if(item) { item.qty += delta; if(item.qty <= 0) carrito = carrito.filter(x => x.key !== key); }
             updateCartUI();
         }
 
@@ -524,7 +527,6 @@
             const badge = document.getElementById('cart-badge');
             const totalItems = carrito.reduce((s, x) => s + x.qty, 0);
             badge.innerText = totalItems; badge.classList.toggle('hidden', totalItems === 0);
-
             const list = document.getElementById('lista-carrito');
             let total = 0;
 
@@ -566,8 +568,7 @@
             const tel = document.getElementById('cli-tel').value.trim();
             if (!nom || !tel) return toast('Completá el nombre y teléfono.');
             
-            let txt = `Hola ${db.config.nombre}! Pedido para *${nom}* (${tel}):\n\n`;
-            let t = 0;
+            let txt = `Hola ${db.config.nombre}! Pedido para *${nom}* (${tel}):\n\n`; let t = 0;
             carrito.forEach(x => {
                 const sub = x.precio * x.qty; t += sub;
                 txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle})\n`;
@@ -586,32 +587,51 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Fiecci.xlsx");
         }
 
-        // SUBIDA MASIVA CON COMPRESIÓN (Para no saturar memoria)
+        // ASPIRADORA DE ESPACIOS EXTREMA: Arranca múltiples extensiones (1.png.png) y vincula
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
             document.getElementById('carga-overlay').style.display='flex';
-            let cargadas = 0;
+            let cargadas = 0; let vinculadas = 0;
 
             Array.from(files).forEach(file => {
                 comprimirImagen(file, (base64Comprimido) => {
-                    const nombreArchivo = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                    let skuBase = nombreArchivo; let colorIndex = 0;
+                    // LIMPIEZA EXTREMA
+                    let nombreLimpio = file.name.toLowerCase();
+                    // Quita la extensión real final
+                    nombreLimpio = nombreLimpio.substring(0, nombreLimpio.lastIndexOf('.'));
+                    // Quita extensiones si el usuario las tipeó a mano (ej: 1-2.png.png -> 1-2)
+                    nombreLimpio = nombreLimpio.replace(/\.(png|jpg|jpeg|webp)$/g, '');
+                    nombreLimpio = nombreLimpio.trim();
+                    
+                    let skuBase = nombreLimpio; 
+                    let colorIndex = 0;
 
-                    if(nombreArchivo.includes('-')) {
-                        const partes = nombreArchivo.split('-');
-                        skuBase = partes[0]; colorIndex = parseInt(partes[1]) - 1; 
+                    const lastDash = skuBase.lastIndexOf('-');
+                    if(lastDash !== -1) {
+                        const posIdx = parseInt(skuBase.substring(lastDash + 1).trim());
+                        if(!isNaN(posIdx) && posIdx > 0) {
+                            skuBase = skuBase.substring(0, lastDash).trim();
+                            colorIndex = posIdx - 1; 
+                        }
                     }
 
-                    const prod = db.productos.find(p => p.sku.toLowerCase() === skuBase.toLowerCase());
+                    // Buscar el SKU exacto, ignorando espacios en blanco por las dudas
+                    const prod = db.productos.find(p => String(p.sku).trim().toLowerCase() === skuBase);
                     if(prod && prod.colores && prod.colores[colorIndex]) {
                         prod.colores[colorIndex].img = base64Comprimido;
+                        vinculadas++;
                     }
                     
                     cargadas++;
                     if(cargadas === files.length) {
                         salvar(); init();
                         document.getElementById('carga-overlay').style.display='none';
-                        toast(`¡${cargadas} fotos comprimidas y vinculadas! 📸`);
+                        document.getElementById('input-fotos-masivas').value = '';
+                        if(vinculadas === 0) {
+                            toast(`❌ No se vinculó ninguna foto. Revisa que el nombre (ej. "1" o "1-2") sea idéntico al SKU.`);
+                        } else {
+                            toast(`¡Proceso terminado! ${vinculadas} fotos vinculadas 📸`);
+                        }
                     }
                 });
             });
@@ -638,7 +658,7 @@
                         let rawTalles = cTal !== -1 ? String(row[cTal]||'').split(',').map(x=>x.trim()).filter(x=>x) : ['Único'];
                         let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
                         
-                        let prodAnterior = db.productos.find(p => p.sku === sku);
+                        let prodAnterior = db.productos.find(p => String(p.sku).trim().toLowerCase() === sku.toLowerCase());
 
                         let arrayColores = rawColores.map((c, idx) => {
                             let imgAnterior = '';
@@ -664,8 +684,7 @@
 
         // --- SISTEMA DE EDICIÓN INDIVIDUAL ---
         function abrirModalEdicion(id) {
-            const p = db.productos.find(x => x.id === id);
-            if(!p) return;
+            const p = db.productos.find(x => x.id === id); if(!p) return;
             
             document.getElementById('edit-id').value = p.id;
             document.getElementById('edit-sku').value = p.sku;
@@ -675,7 +694,7 @@
 
             const cCont = document.getElementById('edit-colores-container');
             cCont.innerHTML = p.colores.map((c, idx) => {
-                const imgPrev = c.img || 'https://via.placeholder.com/80?text=No+Foto';
+                let imgPrev = c.img; if(!imgPrev || imgPrev.length<100) imgPrev = getPlaceholder('SKU '+p.sku);
                 return `
                 <div class="flex items-center gap-3 bg-white p-2 border border-brand-border rounded">
                     <img id="edit-img-prev-${idx}" src="${imgPrev}" class="w-10 h-10 object-cover rounded border border-stone-200">
@@ -689,14 +708,10 @@
                 </div>`;
             }).join('');
 
-            document.getElementById('modal-edicion').classList.remove('hidden');
-            document.getElementById('modal-edicion').classList.add('flex');
+            document.getElementById('modal-edicion').classList.remove('hidden'); document.getElementById('modal-edicion').classList.add('flex');
         }
 
-        function cerrarModalEdicion() {
-            document.getElementById('modal-edicion').classList.add('hidden');
-            document.getElementById('modal-edicion').classList.remove('flex');
-        }
+        function cerrarModalEdicion() { document.getElementById('modal-edicion').classList.add('hidden'); document.getElementById('modal-edicion').classList.remove('flex'); }
 
         function subirFotoIndividual(e, prodId, colorIndex) {
             const file = e.target.files[0]; if(!file) return;
@@ -710,40 +725,29 @@
         }
 
         function guardarEdicionProducto() {
-            const id = document.getElementById('edit-id').value;
-            const p = db.productos.find(x => x.id === id);
-            if(!p) return;
-
+            const id = document.getElementById('edit-id').value; const p = db.productos.find(x => x.id === id); if(!p) return;
             p.nombre = document.getElementById('edit-nombre').value.trim();
             p.precioBase = parseFloat(document.getElementById('edit-precio').value) || 0;
             p.talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x);
-            
             if(p.talles.length === 0) p.talles = ['Único'];
-
             salvar(); init(); cerrarModalEdicion(); toast('Cambios guardados ✏️');
         }
 
         function eliminarProducto(id) {
-            if(confirm('¿Eliminar este producto?')) {
-                db.productos = db.productos.filter(x => x.id !== id);
-                salvar(); init(); toast('Producto eliminado 🗑️');
-            }
+            if(confirm('¿Eliminar este producto?')) { db.productos = db.productos.filter(x => x.id !== id); salvar(); init(); toast('Producto eliminado 🗑️'); }
         }
 
         function renderStockAdmin() {
             const b = document.getElementById('tbody-admin');
             b.innerHTML = db.productos.map(p => {
-                const imgT = p.colores[0] && p.colores[0].img ? p.colores[0].img : 'https://via.placeholder.com/80?text=FOTO';
+                let imgT = p.colores[0] && p.colores[0].img ? p.colores[0].img : getPlaceholder('SKU '+p.sku);
                 return `
                 <tr class="hover:bg-stone-50 transition">
                     <td class="px-4 py-3"><img src="${imgT}" class="w-10 h-10 object-cover rounded border border-brand-border shadow-sm"></td>
                     <td class="px-4 py-3 font-mono text-xs font-bold">${p.sku}</td>
                     <td class="px-4 py-3 font-medium text-xs leading-tight line-clamp-2">${p.nombre}</td>
                     <td class="px-4 py-3 text-right font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
-                    <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight">
-                        <b>T:</b> ${p.talles.join(', ')}<br>
-                        <b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}
-                    </td>
+                    <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight"><b>T:</b> ${p.talles.join(', ')}<br><b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}</td>
                     <td class="px-4 py-3 text-right space-x-2">
                         <button onclick="abrirModalEdicion('${p.id}')" class="text-brand-accent hover:opacity-70" title="Editar"><i class="fas fa-pencil-alt"></i></button>
                         <button onclick="eliminarProducto('${p.id}')" class="text-red-500 hover:opacity-70" title="Eliminar"><i class="fas fa-trash"></i></button>
@@ -754,10 +758,8 @@
 
         function cerrarSesion() { document.body.classList.remove('modo-admin'); }
         function vaciarDB() { if(confirm('¿Seguro querés vaciar todo?')) { db.productos=[]; salvar(); init(); toast('Base vaciada.'); } }
-        
         function toast(m) { 
-            const c=document.getElementById('toast-container'), d=document.createElement('div'); 
-            d.className='toast'; d.innerHTML=`<i class="fas fa-info-circle mr-2"></i> ${m}`; 
+            const c=document.getElementById('toast-container'), d=document.createElement('div'); d.className='toast'; d.innerHTML=`<i class="fas fa-info-circle mr-2"></i> ${m}`; 
             c.appendChild(d); setTimeout(()=>{ d.style.animation='slideIn 0.3s reverse forwards'; setTimeout(()=>d.remove(),300); }, 3500); 
         }
 
