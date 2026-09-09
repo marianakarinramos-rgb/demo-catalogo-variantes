@@ -185,7 +185,7 @@
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Nombradas con el SKU (ej: 1.jpg)</span>
+                        <span class="text-[10px] text-brand-text/60">Ej: 1.jpg (1º color), 1-2.jpg (2º color)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
                         <i class="fas fa-images mr-1"></i> Seleccionar Imágenes
@@ -219,24 +219,24 @@
         let db = { productos: [] };
         
         try { 
-            const s = localStorage.getItem('gesto_hippie_v3'); 
+            const s = localStorage.getItem('gesto_hippie_v4'); 
             if(s) { const p = JSON.parse(s); if(p.productos && p.productos.length > 0) db = p; } 
         } catch(e){}
 
         if(db.productos.length === 0) {
             db.productos = [
                 {
-                    id: '1', sku: '1', nombre: 'Zuecos Mules Gamuza Con Hebilla Estribo Suela', precioBase: 50000,
+                    id: '1', sku: '1', nombre: 'Zuecos Mules Gamuza Con Hebilla Estribo Suela', precioBase: 35000,
                     talles: [35, 36, 37, 38, 39, 40, 41],
                     colores: [
-                        { id: 'c1', nombre: 'Suela', img: '' },
-                        { id: 'c2', nombre: 'Beige', img: '' }
+                        { id: 'c0', nombre: 'Suela', img: '' },
+                        { id: 'c1', nombre: 'Beige', img: '' }
                     ]
                 }
             ];
         }
 
-        function salvar() { localStorage.setItem('gesto_hippie_v3', JSON.stringify(db)); }
+        function salvar() { localStorage.setItem('gesto_hippie_v4', JSON.stringify(db)); }
 
         let carrito = [];
         let seleccionActual = {}; 
@@ -435,6 +435,7 @@
             XLSX.writeFile(wb, "Plantilla_Hippie_Zapatos.xlsx");
         }
 
+        // CRUCE INTELIGENTE POR SUFIJOS (1.jpg = 1º color, 1-2.jpg = 2º color, 1-3.jpg = 3º color)
         function subirFotosMasivas(e) {
             const files = e.target.files;
             if(!files.length) return;
@@ -444,17 +445,26 @@
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     const base64 = evt.target.result;
-                    const nombreLimpio = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                    
-                    const prod = db.productos.find(p => p.sku.toLowerCase() === nombreLimpio.toLowerCase());
-                    if(prod && prod.colores.length > 0) {
-                        prod.colores[0].img = base64; 
+                    const nombreArchivo = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    // Ej: si el archivo es "1-2.jpg", el SKU es "1" y el índice de variante es el 2 (por lo tanto, color índice 1)
+                    let skuBase = nombreArchivo;
+                    let colorIndex = 0;
+
+                    if(nombreArchivo.includes('-')) {
+                        const partes = nombreArchivo.split('-');
+                        skuBase = partes[0];
+                        colorIndex = parseInt(partes[1]) - 1; // 1-2.jpg -> índice 1 (segundo color)
+                    }
+
+                    const prod = db.productos.find(p => p.sku.toLowerCase() === skuBase.toLowerCase());
+                    if(prod && prod.colores && prod.colores[colorIndex]) {
+                        prod.colores[colorIndex].img = base64;
                     }
                     
                     cargadas++;
                     if(cargadas === files.length) {
                         salvar(); init();
-                        toast(`¡${cargadas} imágenes asociadas con éxito! 📸`);
+                        toast(`¡${cargadas} fotos vinculadas por sufijo con éxito! 📸`);
                     }
                 };
                 reader.readAsDataURL(file);
@@ -484,13 +494,18 @@
                         let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
                         
                         let prodAnterior = db.productos.find(p => p.sku === sku);
-                        let imgPrevia = prodAnterior && prodAnterior.colores[0] ? prodAnterior.colores[0].img : '';
 
                         let arrayColores = rawColores.map((c, idx) => {
+                            let imgAnterior = '';
+                            if(prodAnterior && prodAnterior.colores && prodAnterior.colores[idx]) {
+                                imgAnterior = prodAnterior.colores[idx].img;
+                            } else if(idx === 0 && prodAnterior && prodAnterior.colores[0]) {
+                                imgAnterior = prodAnterior.colores[0].img;
+                            }
                             return {
                                 id: 'c-' + idx,
                                 nombre: c,
-                                img: idx === 0 ? imgPrevia : '' // La primera variante hereda la foto principal si la subió por SKU
+                                img: imgAnterior
                             };
                         });
 
