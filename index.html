@@ -82,10 +82,10 @@
 </head>
 <body class="font-sans antialiased pb-24">
 
-    <div id="carga-overlay" class="fixed inset-0 bg-brand-text/80 hidden items-center justify-center z-[99999] backdrop-blur-sm">
-        <div class="text-center">
-            <i class="fas fa-circle-notch fa-spin text-4xl text-brand-bg mb-3"></i>
-            <p class="text-brand-bg font-bold text-sm tracking-widest uppercase">Procesando...</p>
+    <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
+        <div class="text-center bg-white p-6 rounded-lg shadow-xl">
+            <i class="fas fa-circle-notch fa-spin text-4xl text-brand-accent mb-3"></i>
+            <p class="text-brand-text font-bold text-sm tracking-widest uppercase">Procesando...</p>
         </div>
     </div>
 
@@ -169,7 +169,7 @@
 
         <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
             
-            <!-- Configuración de Marca y WhatsApp -->
+            <!-- Configuración -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm space-y-4">
                 <h3 class="font-serif text-lg text-brand-text">⚙️ Identidad de la Marca y WhatsApp</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -178,27 +178,27 @@
                         <input type="text" id="input-nombre-tienda" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Fiecci">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp para Pedidos (con 549)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp para Pedidos</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 5491121586674">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta PANTONE (Estilo)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta PANTONE</label>
                         <select id="select-paleta" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent bg-white">
-                            <option value="suede">Deep Suede Brown (Café Suede Profundo)</option>
-                            <option value="terracota">Warm Terracotta (Terracota Cálido)</option>
+                            <option value="suede">Deep Suede Brown (Café)</option>
+                            <option value="terracota">Warm Terracotta (Terracota)</option>
                             <option value="olive">Olive Green (Verde Oliva)</option>
-                            <option value="yute">Creamy Jute (Yute Cremoso / Off-White)</option>
+                            <option value="yute">Creamy Jute (Yute/Crema)</option>
                         </select>
                     </div>
                 </div>
                 <div class="flex justify-end">
                     <button onclick="guardarConfiguracion()" class="bg-brand-text hover:bg-brand-accent text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition shadow-sm">
-                        Guardar Cambios de Tienda
+                        Guardar Cambios
                     </button>
                 </div>
             </div>
 
-            <!-- Carga de Excel y Fotos Masivas -->
+            <!-- Carga de Excel -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-3 items-center justify-between">
                 <div class="flex flex-wrap gap-2">
                     <button onclick="generarExcelMuestra()" class="bg-stone-100 hover:bg-stone-200 text-brand-text px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-brand-border">
@@ -219,22 +219,24 @@
                         <span class="text-[10px] text-brand-text/60">Ej: 1.jpg (1º color), 1-2.jpg (2º color)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-3 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
-                        <i class="fas fa-arrow-up mr-1"></i> Seleccionar Imágenes
+                        <i class="fas fa-arrow-up mr-1"></i> Subir Fotos
                         <input type="file" id="input-fotos-masivas" accept="image/*" multiple class="hidden" onchange="subirFotosMasivas(event)">
                     </label>
                 </div>
             </div>
 
+            <!-- Tabla de Control con Edición Individual -->
             <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
                         <thead class="bg-stone-50 text-brand-text/60 font-semibold border-b border-brand-border text-[11px] uppercase tracking-wider">
                             <tr>
-                                <th class="px-4 py-3 w-20">Foto</th>
+                                <th class="px-4 py-3 w-16">Foto</th>
                                 <th class="px-4 py-3 w-20">SKU</th>
                                 <th class="px-4 py-3">Producto</th>
-                                <th class="px-4 py-3 text-right">Precio Mayorista</th>
-                                <th class="px-4 py-3">Talles & Colores</th>
+                                <th class="px-4 py-3">Precio</th>
+                                <th class="px-4 py-3">Talles / Colores</th>
+                                <th class="px-4 py-3 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tbody-admin" class="divide-y divide-brand-border/40"></tbody>
@@ -244,9 +246,86 @@
         </main>
     </div>
 
+    <!-- MODAL EDICIÓN INDIVIDUAL -->
+    <div id="modal-edicion" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[99999] backdrop-blur-sm p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-bg">
+                <h3 class="font-serif text-xl text-brand-text">✏️ Editar Modelo</h3>
+                <button onclick="cerrarModalEdicion()" class="text-brand-text/50 hover:text-brand-accent text-xl"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="p-5 overflow-y-auto space-y-4 flex-grow">
+                <input type="hidden" id="edit-id">
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">SKU</label>
+                        <input type="text" id="edit-sku" class="w-full border border-brand-border p-2 rounded-lg text-sm bg-stone-100 outline-none" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Precio Mayorista ($)</label>
+                        <input type="number" id="edit-precio" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre del Producto</label>
+                    <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Talles (Separados por coma)</label>
+                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                </div>
+
+                <div class="border-t border-brand-border pt-4 mt-4">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-brand-text mb-3">🖼️ Fotos por Color</label>
+                    <div id="edit-colores-container" class="space-y-3">
+                        <!-- Generado dinámicamente -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-5 border-t border-brand-border bg-stone-50 flex justify-end gap-3">
+                <button onclick="cerrarModalEdicion()" class="px-5 py-2.5 rounded-lg text-xs font-bold border border-brand-border text-brand-text hover:bg-brand-bg transition">Cancelar</button>
+                <button onclick="guardarEdicionProducto()" class="bg-brand-accent hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition shadow-sm">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast-container"></div>
 
     <script>
+        // MOTOR DE COMPRESIÓN DE IMÁGENES (Evita que el localStorage colapse)
+        function comprimirImagen(file, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width; 
+                    let height = img.height;
+                    const MAX_SIZE = 800; // Máxima resolución para catálogo ligero
+
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width; width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height; height = MAX_SIZE;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Exportar a JPG con 60% de calidad (Pesa aprox 30kb - 50kb)
+                    callback(canvas.toDataURL('image/jpeg', 0.6));
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
         const paletasPantone = {
             suede: { bg: '#F2E8DA', text: '#593C31', accent: '#7B3F32', border: '#DFD0BB' },
             terracota: { bg: '#FDF8F5', text: '#B35A49', accent: '#D97757', border: '#E8D4CE' },
@@ -254,13 +333,10 @@
             yute: { bg: '#FAF6F0', text: '#4A3B32', accent: '#CB6D3E', border: '#E6DFD5' }
         };
 
-        let db = { 
-            config: { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' }, 
-            productos: [] 
-        };
+        let db = { config: { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede' }, productos: [] };
         
         try { 
-            const s = localStorage.getItem('gesto_hippie_v6'); 
+            const s = localStorage.getItem('gesto_hippie_v7'); 
             if(s) { const p = JSON.parse(s); if(p.productos) db = p; } 
         } catch(e){}
 
@@ -280,7 +356,13 @@
             ];
         }
 
-        function salvar() { localStorage.setItem('gesto_hippie_v6', JSON.stringify(db)); }
+        function salvar() { 
+            try {
+                localStorage.setItem('gesto_hippie_v7', JSON.stringify(db)); 
+            } catch(e) {
+                toast("❌ Memoria llena. No subas fotos tan pesadas o vaciá la DB.");
+            }
+        }
 
         let carrito = [];
         let seleccionActual = {}; 
@@ -291,10 +373,7 @@
             clicksAdmin++;
             if(adminTimer) clearTimeout(adminTimer);
             if(clicksAdmin >= 3) {
-                clicksAdmin = 0;
-                document.body.classList.add('modo-admin');
-                toast('🔓 Panel Admin de Tienda abierto');
-                return;
+                clicksAdmin = 0; document.body.classList.add('modo-admin'); toast('🔓 Panel Admin de Tienda abierto'); return;
             }
             adminTimer = setTimeout(() => { clicksAdmin = 0; }, 600);
         }
@@ -322,9 +401,7 @@
             db.config.nombre = document.getElementById('input-nombre-tienda').value.trim() || 'Tienda';
             db.config.whatsapp = document.getElementById('input-whatsapp').value.trim() || '5491121586674';
             db.config.paleta = document.getElementById('select-paleta').value;
-            salvar();
-            actualizarIdentidadVisual();
-            toast('¡Configuración guardada con éxito! ✨');
+            salvar(); actualizarIdentidadVisual(); toast('¡Configuración guardada con éxito! ✨');
         }
 
         const formatMoney = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
@@ -333,13 +410,10 @@
             actualizarIdentidadVisual();
             db.productos.forEach(p => {
                 if(p.colores && p.colores.length > 0 && p.talles && p.talles.length > 0) {
-                    if(!seleccionActual[p.id]) {
-                        seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
-                    }
+                    if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
                 }
             });
-            renderProductos();
-            renderStockAdmin();
+            renderProductos(); renderStockAdmin();
         }
 
         function renderProductos() {
@@ -348,9 +422,7 @@
             const filtrados = db.productos.filter(p => p.nombre.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term));
 
             grid.innerHTML = filtrados.length ? filtrados.map(p => {
-                if(!seleccionActual[p.id]) {
-                    seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
-                }
+                if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
                 const state = seleccionActual[p.id];
                 const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
                 const imgFinal = colorActivo.img || p.colores[0].img || `https://via.placeholder.com/400/E6DFD5/4A3B32?text=SKU+${p.sku}`;
@@ -369,7 +441,6 @@
                             </div>
                             <h2 class="font-sans text-xs font-bold text-brand-text mb-2 leading-snug line-clamp-2">${p.nombre}</h2>
                             
-                            <!-- Selector de Variantes de Colores -->
                             ${p.colores.length > 1 ? `
                             <div class="mb-2">
                                 <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent uppercase" id="label-color-${p.id}">${colorActivo.nombre}</span></span>
@@ -383,7 +454,6 @@
                                 </div>
                             </div>` : ''}
 
-                            <!-- Talles -->
                             <div class="mb-3">
                                 <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Talles</span>
                                 <div class="flex gap-1 size-selector flex-wrap">
@@ -414,49 +484,36 @@
         function cambiarColor(prodId, colorId, colorNombre, imgUrl) {
             seleccionActual[prodId].color = colorId;
             const imgEl = document.getElementById(`img-prod-${prodId}`);
-            if(imgEl && imgUrl) {
-                imgEl.src = imgUrl;
-            }
+            if(imgEl && imgUrl) imgEl.src = imgUrl;
             const labelEl = document.getElementById(`label-color-${prodId}`);
-            if(labelEl) {
-                labelEl.innerText = colorNombre;
-            }
+            if(labelEl) labelEl.innerText = colorNombre;
         }
 
-        function cambiarTalle(prodId, talle) {
-            seleccionActual[prodId].talle = talle;
-        }
+        function cambiarTalle(prodId, talle) { seleccionActual[prodId].talle = talle; }
 
         function addCart(prodId) {
             const p = db.productos.find(x => x.id === prodId);
-            const s = seleccionActual[prodId] || { talle: p.talles[0], color: p.colores[0].id, qty: 1 };
-            const col = p.colores.find(c => c.id === s.color) || p.colores[0];
-            
+            const s = seleccionActual[prodId];
+            const col = p.colores.find(c => c.id === s.color);
             const key = `${prodId}|${s.color}|${s.talle}`;
             const ex = carrito.find(x => x.key === key);
             
             if (ex) ex.qty += 1;
             else {
                 carrito.push({
-                    key: key, prodId: prodId, colorId: s.color, talle: s.talle,
-                    prodNombre: p.nombre, colorNombre: col.nombre,
-                    talle: s.talle, precio: p.precioBase, qty: 1, 
-                    img: col.img || p.colores[0].img || 'https://via.placeholder.com/80'
+                    key: key, prodNombre: p.nombre, colorNombre: col.nombre, talle: s.talle,
+                    precio: p.precioBase, qty: 1, img: col.img || p.colores[0].img || 'https://via.placeholder.com/80'
                 });
             }
             updateCartUI(); toast('Agregado al pedido');
-            if(document.getElementById('modal-carrito').classList.contains('translate-x-full')) {
-                toggleCart();
-            }
+            if(document.getElementById('modal-carrito').classList.contains('translate-x-full')) toggleCart();
         }
 
         function modCarItem(key, delta) {
             const item = carrito.find(x => x.key === key);
             if(item) {
                 item.qty += delta;
-                if(item.qty <= 0) {
-                    carrito = carrito.filter(x => x.key !== key);
-                }
+                if(item.qty <= 0) carrito = carrito.filter(x => x.key !== key);
             }
             updateCartUI();
         }
@@ -481,8 +538,8 @@
                         <img src="${x.img}" class="w-14 h-14 object-cover rounded-lg border border-brand-border">
                         <div class="flex-grow">
                             <h4 class="text-xs font-bold text-brand-text leading-tight line-clamp-1">${x.prodNombre}</h4>
-                            <p class="text-[10px] text-gray-500 my-0.5">Color: ${x.colorNombre} | Talle: ${x.talle}</p>
-                            <span class="text-xs font-black text-brand-accent">${x.qty} u. x ${formatMoney(x.precio)} = ${formatMoney(sub)}</span>
+                            <p class="text-[10px] text-gray-500 my-0.5">${x.colorNombre} | T: ${x.talle}</p>
+                            <span class="text-xs font-black text-brand-accent">${x.qty} u. x ${formatMoney(x.precio)}</span>
                         </div>
                         <div class="flex flex-col items-end gap-2">
                             <button onclick="removeCartItem('${x.key}')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash text-xs"></i></button>
@@ -507,62 +564,56 @@
             if (!carrito.length) return toast('No hay productos en el pedido.');
             const nom = document.getElementById('cli-nombre').value.trim();
             const tel = document.getElementById('cli-tel').value.trim();
-            if (!nom || !tel) return toast('Completá el nombre del local y teléfono.');
+            if (!nom || !tel) return toast('Completá el nombre y teléfono.');
             
             let txt = `Hola ${db.config.nombre}! Pedido para *${nom}* (${tel}):\n\n`;
             let t = 0;
             carrito.forEach(x => {
                 const sub = x.precio * x.qty; t += sub;
-                txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle}) - ${formatMoney(sub)}\n`;
+                txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle})\n`;
             });
             txt += `\n📦 *TOTAL: ${formatMoney(t)}*`;
             window.open(`https://wa.me/${db.config.whatsapp}?text=${encodeURIComponent(txt)}`, '_blank');
         }
 
         function generarExcelMuestra() {
-            toast('Generando plantilla...');
             const data = [
                 { "SKU": "1", "PRODUCTO": "Zuecos Mules Suede Profundo", "PRECIO": 69900, "TALLES": "35, 36, 37, 38, 39, 40", "COLORES": "Suela, Beige, Chocolate" },
-                { "SKU": "2", "PRODUCTO": "Zuecos Mules Rafia Yute", "PRECIO": 55000, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Yute Cremoso, Negro" }
+                { "SKU": "2", "PRODUCTO": "Zuecos Mules Rafia", "PRECIO": 55000, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Yute Cremoso, Negro" }
             ];
-            const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new(); const ws = XLSX.utils.json_to_sheet(data);
             ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}, {wch:25}];
-            XLSX.utils.book_append_sheet(wb, ws, "Catalogo");
-            XLSX.writeFile(wb, "Plantilla_Fiecci_Zapatos.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Fiecci.xlsx");
         }
 
+        // SUBIDA MASIVA CON COMPRESIÓN (Para no saturar memoria)
         function subirFotosMasivas(e) {
-            const files = e.target.files;
-            if(!files.length) return;
-            
+            const files = e.target.files; if(!files.length) return;
+            document.getElementById('carga-overlay').style.display='flex';
             let cargadas = 0;
+
             Array.from(files).forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const base64 = evt.target.result;
+                comprimirImagen(file, (base64Comprimido) => {
                     const nombreArchivo = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-                    let skuBase = nombreArchivo;
-                    let colorIndex = 0;
+                    let skuBase = nombreArchivo; let colorIndex = 0;
 
                     if(nombreArchivo.includes('-')) {
                         const partes = nombreArchivo.split('-');
-                        skuBase = partes[0];
-                        colorIndex = parseInt(partes[1]) - 1; 
+                        skuBase = partes[0]; colorIndex = parseInt(partes[1]) - 1; 
                     }
 
                     const prod = db.productos.find(p => p.sku.toLowerCase() === skuBase.toLowerCase());
                     if(prod && prod.colores && prod.colores[colorIndex]) {
-                        prod.colores[colorIndex].img = base64;
+                        prod.colores[colorIndex].img = base64Comprimido;
                     }
                     
                     cargadas++;
                     if(cargadas === files.length) {
                         salvar(); init();
-                        toast(`¡${cargadas} fotos vinculadas con éxito! 📸`);
+                        document.getElementById('carga-overlay').style.display='none';
+                        toast(`¡${cargadas} fotos comprimidas y vinculadas! 📸`);
                     }
-                };
-                reader.readAsDataURL(file);
+                });
             });
         }
 
@@ -577,13 +628,12 @@
                     let h = json[0].map(x=>String(x||'').toUpperCase().trim());
                     
                     let cSku = h.indexOf('SKU'), cProd = h.indexOf('PRODUCTO'), cPre = h.indexOf('PRECIO'), cTal = h.indexOf('TALLES'), cCol = h.indexOf('COLORES');
-                    if(cSku===-1 || cProd===-1 || cPre===-1) throw new Error("Faltan columnas obligatorias (SKU, PRODUCTO, PRECIO).");
+                    if(cSku===-1 || cProd===-1 || cPre===-1) throw new Error("Faltan columnas (SKU, PRODUCTO, PRECIO).");
                     
                     let nuevosProductos = [];
                     for(let i=1; i<json.length; i++) {
                         let row = json[i]; if(!row || !row[cProd]) continue;
-                        let sku = String(row[cSku]||i).trim();
-                        let nombre = String(row[cProd]).trim();
+                        let sku = String(row[cSku]||i).trim(); let nombre = String(row[cProd]).trim();
                         let precio = parseFloat(String(row[cPre]).replace(',','.')) || 0;
                         let rawTalles = cTal !== -1 ? String(row[cTal]||'').split(',').map(x=>x.trim()).filter(x=>x) : ['Único'];
                         let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
@@ -592,31 +642,19 @@
 
                         let arrayColores = rawColores.map((c, idx) => {
                             let imgAnterior = '';
-                            if(prodAnterior && prodAnterior.colores && prodAnterior.colores[idx]) {
-                                imgAnterior = prodAnterior.colores[idx].img;
-                            } else if(idx === 0 && prodAnterior && prodAnterior.colores[0]) {
-                                imgAnterior = prodAnterior.colores[0].img;
-                            }
-                            return {
-                                id: 'c-' + idx,
-                                nombre: c,
-                                img: imgAnterior
-                            };
+                            if(prodAnterior && prodAnterior.colores && prodAnterior.colores[idx]) imgAnterior = prodAnterior.colores[idx].img;
+                            else if(idx === 0 && prodAnterior && prodAnterior.colores[0]) imgAnterior = prodAnterior.colores[0].img;
+                            return { id: 'c-' + idx, nombre: c, img: imgAnterior };
                         });
 
                         nuevosProductos.push({
-                            id: 'id-' + Date.now() + i,
-                            sku: sku,
-                            nombre: nombre,
-                            precioBase: precio,
-                            talles: rawTalles.length ? rawTalles : ['Único'],
-                            colores: arrayColores
+                            id: 'id-' + Date.now() + i, sku: sku, nombre: nombre, precioBase: precio,
+                            talles: rawTalles.length ? rawTalles : ['Único'], colores: arrayColores
                         });
                     }
                     
                     if(nuevosProductos.length > 0) {
-                        db.productos = nuevosProductos; salvar(); init(); 
-                        toast("Excel importado con éxito ✅");
+                        db.productos = nuevosProductos; salvar(); init(); toast("Excel importado ✅");
                     } else { toast("El Excel está vacío."); }
                 } catch(err) { toast("❌ Error: " + err.message); } 
                 finally { document.getElementById('carga-overlay').style.display='none'; e.target.value=''; }
@@ -624,17 +662,92 @@
             r.readAsArrayBuffer(f);
         }
 
+        // --- SISTEMA DE EDICIÓN INDIVIDUAL ---
+        function abrirModalEdicion(id) {
+            const p = db.productos.find(x => x.id === id);
+            if(!p) return;
+            
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('edit-sku').value = p.sku;
+            document.getElementById('edit-nombre').value = p.nombre;
+            document.getElementById('edit-precio').value = p.precioBase;
+            document.getElementById('edit-talles').value = p.talles.join(', ');
+
+            const cCont = document.getElementById('edit-colores-container');
+            cCont.innerHTML = p.colores.map((c, idx) => {
+                const imgPrev = c.img || 'https://via.placeholder.com/80?text=No+Foto';
+                return `
+                <div class="flex items-center gap-3 bg-white p-2 border border-brand-border rounded">
+                    <img id="edit-img-prev-${idx}" src="${imgPrev}" class="w-10 h-10 object-cover rounded border border-stone-200">
+                    <div class="flex-grow">
+                        <span class="text-xs font-bold text-brand-text block mb-1">Color: ${c.nombre}</span>
+                        <label class="text-[10px] bg-stone-100 hover:bg-stone-200 border border-stone-300 px-2 py-1 rounded cursor-pointer transition">
+                            Subir Foto
+                            <input type="file" accept="image/*" class="hidden" onchange="subirFotoIndividual(event, '${p.id}', ${idx})">
+                        </label>
+                    </div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('modal-edicion').classList.remove('hidden');
+            document.getElementById('modal-edicion').classList.add('flex');
+        }
+
+        function cerrarModalEdicion() {
+            document.getElementById('modal-edicion').classList.add('hidden');
+            document.getElementById('modal-edicion').classList.remove('flex');
+        }
+
+        function subirFotoIndividual(e, prodId, colorIndex) {
+            const file = e.target.files[0]; if(!file) return;
+            comprimirImagen(file, (base64) => {
+                const p = db.productos.find(x => x.id === prodId);
+                if(p && p.colores[colorIndex]) {
+                    p.colores[colorIndex].img = base64;
+                    document.getElementById(`edit-img-prev-${colorIndex}`).src = base64;
+                }
+            });
+        }
+
+        function guardarEdicionProducto() {
+            const id = document.getElementById('edit-id').value;
+            const p = db.productos.find(x => x.id === id);
+            if(!p) return;
+
+            p.nombre = document.getElementById('edit-nombre').value.trim();
+            p.precioBase = parseFloat(document.getElementById('edit-precio').value) || 0;
+            p.talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x);
+            
+            if(p.talles.length === 0) p.talles = ['Único'];
+
+            salvar(); init(); cerrarModalEdicion(); toast('Cambios guardados ✏️');
+        }
+
+        function eliminarProducto(id) {
+            if(confirm('¿Eliminar este producto?')) {
+                db.productos = db.productos.filter(x => x.id !== id);
+                salvar(); init(); toast('Producto eliminado 🗑️');
+            }
+        }
+
         function renderStockAdmin() {
             const b = document.getElementById('tbody-admin');
             b.innerHTML = db.productos.map(p => {
-                const imgT = p.colores[0] && p.colores[0].img ? p.colores[0].img : 'https://via.placeholder.com/80';
+                const imgT = p.colores[0] && p.colores[0].img ? p.colores[0].img : 'https://via.placeholder.com/80?text=FOTO';
                 return `
                 <tr class="hover:bg-stone-50 transition">
-                    <td class="px-4 py-3"><img src="${imgT}" class="w-10 h-10 object-cover rounded border border-brand-border"></td>
+                    <td class="px-4 py-3"><img src="${imgT}" class="w-10 h-10 object-cover rounded border border-brand-border shadow-sm"></td>
                     <td class="px-4 py-3 font-mono text-xs font-bold">${p.sku}</td>
-                    <td class="px-4 py-3 font-medium text-xs">${p.nombre}</td>
+                    <td class="px-4 py-3 font-medium text-xs leading-tight line-clamp-2">${p.nombre}</td>
                     <td class="px-4 py-3 text-right font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
-                    <td class="px-4 py-3 text-[11px] text-gray-500">Talles: [${p.talles.join(', ')}] | Colores: [${p.colores.map(c=>c.nombre).join(', ')}]</td>
+                    <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight">
+                        <b>T:</b> ${p.talles.join(', ')}<br>
+                        <b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}
+                    </td>
+                    <td class="px-4 py-3 text-right space-x-2">
+                        <button onclick="abrirModalEdicion('${p.id}')" class="text-brand-accent hover:opacity-70" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                        <button onclick="eliminarProducto('${p.id}')" class="text-red-500 hover:opacity-70" title="Eliminar"><i class="fas fa-trash"></i></button>
+                    </td>
                 </tr>
             `}).join('');
         }
