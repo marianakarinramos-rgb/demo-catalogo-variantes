@@ -90,8 +90,8 @@
         </div>
     </div>
 
-    <!-- Botón Volver Arriba (Flecha Flotante) -->
-    <button id="btn-subir" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-brand-accent hover:opacity-90 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none z-40">
+    <!-- Botón Volver Arriba (Gatillo Súper Sensible) -->
+    <button id="btn-subir" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-brand-accent hover:opacity-90 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none z-[90000]">
         <i class="fas fa-chevron-up text-xl"></i>
     </button>
 
@@ -102,6 +102,7 @@
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div id="header-branding" class="flex items-center cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin"></div>
+                
                 <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm">
                     <i class="fas fa-shopping-cart text-lg"></i>
                     <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
@@ -112,8 +113,13 @@
         <main class="max-w-7xl mx-auto px-6 py-8">
             <div class="mb-8 max-w-lg mx-auto relative">
                 <i class="fas fa-search absolute left-4 top-3.5 text-brand-text/40"></i>
-                <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-4 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
+                <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-10 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
+                <!-- Nueva X para limpiar el buscador rápido -->
+                <button onclick="document.getElementById('buscador').value=''; renderProductos();" class="absolute right-4 top-3.5 text-brand-text/30 hover:text-brand-accent transition cursor-pointer">
+                    <i class="fas fa-times-circle text-lg"></i>
+                </button>
             </div>
+            
             <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5"></div>
         </main>
     </div>
@@ -178,7 +184,7 @@
                         <input type="file" id="input-logo" accept="image/*" class="w-full text-xs text-brand-text file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-brand-bg file:text-brand-text hover:file:bg-brand-border cursor-pointer transition outline-none" onchange="subirLogoApp(event)">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos (con 549)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                     <div>
@@ -260,27 +266,27 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">SKU *</label>
-                        <input type="text" id="edit-sku" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent font-bold" placeholder="Ej: 10">
+                        <input type="text" id="edit-sku" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent font-bold">
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Precio Mayorista ($) *</label>
-                        <input type="number" id="edit-precio" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 45000">
+                        <input type="number" id="edit-precio" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                 </div>
                 
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre del Producto *</label>
-                    <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Sandalia Roma">
+                    <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Talles (Separados por coma) *</label>
-                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 36, 37, 38, 39, 40">
+                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
                 </div>
 
                 <div id="grupo-crear-colores" class="hidden">
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Colores (Separados por coma) *</label>
-                    <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Negro, Beige, Suela">
+                    <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
                 </div>
 
                 <div id="grupo-editar-fotos" class="border-t border-brand-border pt-4 mt-4">
@@ -299,10 +305,10 @@
     <div id="toast-container"></div>
 
     <script>
-        // Flecha de Scroll Flotante
+        // Flecha de Scroll con Sensibilidad Alta
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('btn-subir');
-            if (window.scrollY > 300) {
+            if (window.scrollY > 50) {
                 btn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
                 btn.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
             } else {
@@ -492,7 +498,7 @@
                         </div>
                     </div>
                 </div>
-            `}).join('') : '<div class="col-span-full py-20 text-center text-brand-text/40 font-serif text-xl">Sin resultados...</div>';
+            `}).join('') : '<div class="col-span-full py-20 text-center text-brand-text/40 font-serif text-xl">No encontramos productos para tu búsqueda...</div>';
         }
 
         function cambiarColor(prodId, colorId, colorNombre, imgUrl) {
@@ -584,13 +590,13 @@
             // Abre WhatsApp
             window.open(`https://wa.me/${db.config.whatsapp}?text=${encodeURIComponent(txt)}`, '_blank');
             
-            // Vacía el carrito post compra para arrancar uno nuevo limpio
+            // Vacía el carrito post compra automáticamente
             setTimeout(() => {
                 carrito = [];
                 updateCartUI();
                 toggleCart();
-                toast('¡Pedido enviado! El carrito se vació para el próximo pedido.');
-            }, 1000);
+                toast('¡Pedido enviado! El carrito se vació para el próximo.');
+            }, 1500);
         }
 
         function generarExcelMuestra() {
@@ -600,7 +606,6 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Catalogo.xlsx");
         }
 
-        // ASPIRADORA DE NOMBRES CON SCORING (SIN SALVAVIDAS FALSOS)
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
             document.getElementById('carga-texto').innerText = "Procesando " + files.length + " fotos...";
@@ -662,7 +667,7 @@
                     
                     cargadas++; document.getElementById('carga-texto').innerText = "Procesando " + cargadas + " de " + files.length + "...";
                     if(cargadas === files.length) {
-                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ Las fotos no coincidieron con los SKU/Colores.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
+                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ Las fotos no coincidieron con los SKU.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
                     }
                 });
             });
@@ -694,40 +699,21 @@
             }; r.readAsArrayBuffer(f);
         }
 
-        // --- SISTEMA MANUAL DE PRODUCTOS ---
         function abrirModalNuevoProducto() {
             document.getElementById('modal-titulo').innerHTML = '✨ Crear Nuevo Artículo';
-            document.getElementById('edit-id').value = '';
-            document.getElementById('edit-sku').value = '';
-            document.getElementById('edit-sku').readOnly = false;
-            document.getElementById('edit-sku').classList.remove('bg-stone-100');
-            document.getElementById('edit-nombre').value = '';
-            document.getElementById('edit-precio').value = '';
-            document.getElementById('edit-talles').value = '35, 36, 37, 38, 39, 40';
-            
-            document.getElementById('grupo-crear-colores').classList.remove('hidden');
-            document.getElementById('edit-colores-texto').value = 'General';
-            
+            document.getElementById('edit-id').value = ''; document.getElementById('edit-sku').value = ''; document.getElementById('edit-sku').readOnly = false; document.getElementById('edit-sku').classList.remove('bg-stone-100');
+            document.getElementById('edit-nombre').value = ''; document.getElementById('edit-precio').value = ''; document.getElementById('edit-talles').value = '35, 36, 37, 38, 39, 40';
+            document.getElementById('grupo-crear-colores').classList.remove('hidden'); document.getElementById('edit-colores-texto').value = 'General';
             document.getElementById('grupo-editar-fotos').classList.add('hidden');
-            
-            document.getElementById('modal-edicion').classList.remove('hidden'); 
-            document.getElementById('modal-edicion').classList.add('flex');
+            document.getElementById('modal-edicion').classList.remove('hidden'); document.getElementById('modal-edicion').classList.add('flex');
         }
 
         function abrirModalEdicion(id) {
             const p = db.productos.find(x => x.id === id); if(!p) return;
             document.getElementById('modal-titulo').innerHTML = '✏️ Editar y Subir Fotos';
-            document.getElementById('edit-id').value = p.id; 
-            document.getElementById('edit-sku').value = p.sku; 
-            document.getElementById('edit-sku').readOnly = true;
-            document.getElementById('edit-sku').classList.add('bg-stone-100');
-            document.getElementById('edit-nombre').value = p.nombre; 
-            document.getElementById('edit-precio').value = p.precioBase; 
-            document.getElementById('edit-talles').value = p.talles.join(', ');
-            
-            document.getElementById('grupo-crear-colores').classList.add('hidden');
-            document.getElementById('grupo-editar-fotos').classList.remove('hidden');
-
+            document.getElementById('edit-id').value = p.id; document.getElementById('edit-sku').value = p.sku; document.getElementById('edit-sku').readOnly = true; document.getElementById('edit-sku').classList.add('bg-stone-100');
+            document.getElementById('edit-nombre').value = p.nombre; document.getElementById('edit-precio').value = p.precioBase; document.getElementById('edit-talles').value = p.talles.join(', ');
+            document.getElementById('grupo-crear-colores').classList.add('hidden'); document.getElementById('grupo-editar-fotos').classList.remove('hidden');
             const cCont = document.getElementById('edit-colores-container');
             cCont.innerHTML = p.colores.map((c, idx) => {
                 let imgPrev = c.img; if(!imgPrev || imgPrev.length<100) imgPrev = getPlaceholder('SKU '+p.sku+' '+c.nombre);
@@ -737,8 +723,7 @@
                     <div class="flex-grow">
                         <span class="text-xs font-bold text-brand-text block mb-1">Color: ${c.nombre}</span>
                         <label class="inline-block bg-brand-accent hover:opacity-90 text-white px-3 py-1.5 rounded text-[10px] font-bold cursor-pointer transition shadow-sm">
-                            <i class="fas fa-cloud-upload-alt mr-1"></i> Subir Foto
-                            <input type="file" accept="image/*" class="hidden" onchange="subirFotoIndividual(event, '${p.id}', ${idx})">
+                            <i class="fas fa-cloud-upload-alt mr-1"></i> Subir Foto <input type="file" accept="image/*" class="hidden" onchange="subirFotoIndividual(event, '${p.id}', ${idx})">
                         </label>
                     </div>
                 </div>`;
@@ -750,45 +735,25 @@
 
         function subirFotoIndividual(e, prodId, colorIndex) {
             const file = e.target.files[0]; if(!file) return;
-            comprimirImagen(file, (base64) => { 
-                const p = db.productos.find(x => x.id === prodId); 
-                if(p && p.colores[colorIndex]) { 
-                    p.colores[colorIndex].img = base64; 
-                    document.getElementById(`edit-img-prev-${colorIndex}`).src = base64; 
-                } 
-            });
+            comprimirImagen(file, (base64) => { const p = db.productos.find(x => x.id === prodId); if(p && p.colores[colorIndex]) { p.colores[colorIndex].img = base64; document.getElementById(`edit-img-prev-${colorIndex}`).src = base64; } });
         }
 
         function guardarEdicionProducto() {
-            const id = document.getElementById('edit-id').value;
-            const sku = document.getElementById('edit-sku').value.trim();
-            const nombre = document.getElementById('edit-nombre').value.trim();
-            const precio = parseFloat(document.getElementById('edit-precio').value) || 0;
-            let talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x);
-            if(talles.length === 0) talles = ['Único'];
-
+            const id = document.getElementById('edit-id').value; const sku = document.getElementById('edit-sku').value.trim(); const nombre = document.getElementById('edit-nombre').value.trim(); const precio = parseFloat(document.getElementById('edit-precio').value) || 0;
+            let talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x); if(talles.length === 0) talles = ['Único'];
             if(!sku || !nombre) return toast('SKU y Nombre son obligatorios.');
 
             if (id) {
                 const p = db.productos.find(x => x.id === id); if(!p) return;
-                p.nombre = nombre; p.precioBase = precio; p.talles = talles;
-                toast('Cambios guardados ✏️');
+                p.nombre = nombre; p.precioBase = precio; p.talles = talles; toast('Cambios guardados ✏️');
             } else {
                 const existe = db.productos.find(x => String(x.sku).toLowerCase() === sku.toLowerCase());
                 if(existe) return toast('❌ El SKU ya existe.');
-                
-                let coloresCrudos = document.getElementById('edit-colores-texto').value.split(',').map(x=>x.trim()).filter(x=>x);
-                if(coloresCrudos.length === 0) coloresCrudos = ['General'];
-                
+                let coloresCrudos = document.getElementById('edit-colores-texto').value.split(',').map(x=>x.trim()).filter(x=>x); if(coloresCrudos.length === 0) coloresCrudos = ['General'];
                 let arrayColores = coloresCrudos.map((c, idx) => { return { id: 'c-' + idx, nombre: c, img: '' }; });
-                
-                db.productos.unshift({
-                    id: 'id-' + Date.now(), sku: sku, nombre: nombre, precioBase: precio,
-                    talles: talles, colores: arrayColores
-                });
+                db.productos.unshift({ id: 'id-' + Date.now(), sku: sku, nombre: nombre, precioBase: precio, talles: talles, colores: arrayColores });
                 toast('¡Producto creado! Ahora subile las fotos. 🆕');
             }
-            
             salvar(); initApp(); cerrarModalEdicion(); 
         }
 
