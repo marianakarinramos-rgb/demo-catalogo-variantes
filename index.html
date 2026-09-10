@@ -90,9 +90,9 @@
         </div>
     </div>
 
-    <!-- Botón Volver Arriba -->
-    <button id="btn-subir" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 left-6 bg-brand-text hover:bg-brand-accent text-white w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-[90000]">
-        <i class="fas fa-chevron-up text-lg"></i>
+    <!-- Botón Volver Arriba (Flecha Flotante) -->
+    <button id="btn-subir" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 right-6 bg-brand-accent hover:opacity-90 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none z-40">
+        <i class="fas fa-chevron-up text-xl"></i>
     </button>
 
     <!-- ============================================== -->
@@ -178,7 +178,7 @@
                         <input type="file" id="input-logo" accept="image/*" class="w-full text-xs text-brand-text file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-brand-bg file:text-brand-text hover:file:bg-brand-border cursor-pointer transition outline-none" onchange="subirLogoApp(event)">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos (con 549)</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                     <div>
@@ -196,7 +196,6 @@
                 </div>
             </div>
 
-            <!-- Panel de Acciones (Excel + Manual) -->
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-4 items-center justify-between">
                 <div class="flex flex-wrap gap-2">
                     <button onclick="abrirModalNuevoProducto()" class="bg-brand-text hover:bg-brand-accent text-white px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
@@ -218,16 +217,15 @@
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">(ej. 4 negro.jpg, 1-2.jpg)</span>
+                        <span class="text-[10px] text-brand-text/60">Súper Inteligente: (ej. 4 negro.jpg, 5_rafia.png)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-4 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
-                        <i class="fas fa-images mr-2"></i> Subir Varias
+                        <i class="fas fa-arrow-up mr-2"></i> Subir Fotos
                         <input type="file" id="input-fotos-masivas" accept="image/*" multiple class="hidden" onchange="subirFotosMasivas(event)">
                     </label>
                 </div>
             </div>
 
-            <!-- Tabla de Control -->
             <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
@@ -280,7 +278,6 @@
                     <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 36, 37, 38, 39, 40">
                 </div>
 
-                <!-- Campo de colores (Solo visible al crear) -->
                 <div id="grupo-crear-colores" class="hidden">
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Colores (Separados por coma) *</label>
                     <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Negro, Beige, Suela">
@@ -302,12 +299,15 @@
     <div id="toast-container"></div>
 
     <script>
+        // Flecha de Scroll Flotante
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('btn-subir');
             if (window.scrollY > 300) {
-                btn.classList.remove('opacity-0', 'pointer-events-none'); btn.classList.add('opacity-100', 'pointer-events-auto');
+                btn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+                btn.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
             } else {
-                btn.classList.remove('opacity-100', 'pointer-events-auto'); btn.classList.add('opacity-0', 'pointer-events-none');
+                btn.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+                btn.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
             }
         });
 
@@ -340,6 +340,7 @@
         }
 
         const limpiarTexto = (str) => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[-_\s]+/g, ''); };
+        const toConsonants = (str) => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[aeiouáéíóúü\s-_\W]/g, ''); };
 
         const paletasPantone = {
             suede: { bg: '#F2E8DA', text: '#593C31', accent: '#7B3F32', border: '#DFD0BB' },
@@ -579,7 +580,17 @@
                 txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle}) - ${formatMoney(sub)}\n`;
             });
             txt += `\n📦 *TOTAL ESTIMADO: ${formatMoney(t)}*`;
+            
+            // Abre WhatsApp
             window.open(`https://wa.me/${db.config.whatsapp}?text=${encodeURIComponent(txt)}`, '_blank');
+            
+            // Vacía el carrito post compra para arrancar uno nuevo limpio
+            setTimeout(() => {
+                carrito = [];
+                updateCartUI();
+                toggleCart();
+                toast('¡Pedido enviado! El carrito se vació para el próximo pedido.');
+            }, 1000);
         }
 
         function generarExcelMuestra() {
@@ -606,7 +617,6 @@
                     for (let p of prodsSorted) {
                         let skuLower = String(p.sku).trim().toLowerCase();
                         
-                        // Solo procesa si el nombre empieza con el SKU y le sigue un separador o espacio
                         if (nombreLimpio === skuLower || nombreLimpio.startsWith(skuLower + '-') || nombreLimpio.startsWith(skuLower + ' ') || nombreLimpio.startsWith(skuLower + '_')) {
                             
                             let resto = nombreLimpio.substring(skuLower.length).trim();
@@ -616,31 +626,25 @@
                             let bestScore = -1;
 
                             if (resto === '') {
-                                // Si la foto se llama "5.jpg", se asigna al primer color
                                 bestColorIdx = 0;
                             } else {
-                                // Scoring para encontrar el mejor color
                                 for (let i = 0; i < p.colores.length; i++) {
                                     let cClean = limpiarTexto(p.colores[i].nombre);
                                     let rClean = limpiarTexto(resto);
 
-                                    // Match número directo (ej. "5-2")
                                     let posIdx = parseInt(resto);
                                     if (!isNaN(posIdx) && posIdx > 0 && posIdx.toString() === resto) {
                                         if(i === posIdx - 1) { bestColorIdx = i; bestScore = 9999; break; }
                                         continue;
                                     }
 
-                                    // Match exacto
                                     if (cClean === rClean) { bestColorIdx = i; bestScore = 1000; break; }
 
-                                    // Match cruzado (gana el que comparte más texto, ej: "negro con brillos" vs "negro")
                                     if (rClean.length >= 3 && cClean.length >= 3 && (rClean.includes(cClean) || cClean.includes(rClean))) {
                                         let score = 500 + cClean.length; 
                                         if (score > bestScore) { bestColorIdx = i; bestScore = score; }
                                     }
                                     
-                                    // Match 4 letras (plateada vs platetado)
                                     if (rClean.length >= 4 && cClean.length >= 4 && (cClean.startsWith(rClean.substring(0,4)) || rClean.startsWith(cClean.substring(0,4)))) {
                                         let score = 300 + cClean.length;
                                         if (score > bestScore) { bestColorIdx = i; bestScore = score; }
@@ -653,7 +657,6 @@
                                 vinculadas++;
                                 break; 
                             }
-                            // Ya NO hay salvavidas. Si pusiste "5 amarillo.jpg" y no hay color amarillo, no se sube.
                         }
                     }
                     
@@ -767,12 +770,10 @@
             if(!sku || !nombre) return toast('SKU y Nombre son obligatorios.');
 
             if (id) {
-                // Modo Edición
                 const p = db.productos.find(x => x.id === id); if(!p) return;
                 p.nombre = nombre; p.precioBase = precio; p.talles = talles;
                 toast('Cambios guardados ✏️');
             } else {
-                // Modo Creación Manual
                 const existe = db.productos.find(x => String(x.sku).toLowerCase() === sku.toLowerCase());
                 if(existe) return toast('❌ El SKU ya existe.');
                 
