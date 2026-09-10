@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600;1,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
@@ -97,14 +97,10 @@
     <div id="vista-tienda">
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-4 cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin">
-                    <div id="store-logo-container" class="w-12 h-12 rounded-full border-2 border-brand-border flex items-center justify-center overflow-hidden bg-brand-bg">
-                        <!-- El logo o la inicial se inyectan acá -->
-                    </div>
-                    <div>
-                        <h1 id="store-name" class="font-serif text-2xl text-brand-text leading-none">Fiecci</h1>
-                        <span class="text-[10px] uppercase tracking-widest text-brand-text/60 font-bold">Venta Mayorista</span>
-                    </div>
+                
+                <!-- Branding Dinámico (Click para Admin) -->
+                <div id="header-branding" class="flex items-center cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin">
+                    <!-- JS inyecta el logo imagen o el logo tipográfico acá -->
                 </div>
                 
                 <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm">
@@ -178,14 +174,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre de la Tienda</label>
-                        <input type="text" id="input-nombre-tienda" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Fiecci">
+                        <input type="text" id="input-nombre-tienda" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Hippie Zapatos">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Logo (Opcional)</label>
                         <input type="file" id="input-logo" accept="image/*" class="w-full text-xs text-brand-text file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-brand-bg file:text-brand-text hover:file:bg-brand-border cursor-pointer transition outline-none" onchange="subirLogoApp(event)">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp para Pedidos</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos (con 549)</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 5491121586674">
                     </div>
                     <div>
@@ -299,7 +295,6 @@
     <div id="toast-container"></div>
 
     <script>
-        // COMPRESIÓN CON FALLBACK
         function comprimirImagen(file, callback, maxSize = 600, format = 'image/jpeg') {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -308,17 +303,10 @@
                     try {
                         const canvas = document.createElement('canvas');
                         let width = img.width; let height = img.height;
-
-                        if (width > height && width > maxSize) {
-                            height *= maxSize / width; width = maxSize;
-                        } else if (height > maxSize) {
-                            width *= maxSize / height; height = maxSize;
-                        }
-
+                        if (width > height && width > maxSize) { height *= maxSize / width; width = maxSize; } 
+                        else if (height > maxSize) { width *= maxSize / height; height = maxSize; }
                         canvas.width = width; canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
+                        const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
                         const dataUrl = canvas.toDataURL(format, 0.7); 
                         if (dataUrl === "data:,") throw new Error("Canvas vacio");
                         callback(dataUrl);
@@ -344,12 +332,12 @@
             yute: { bg: '#FAF6F0', text: '#4A3B32', accent: '#CB6D3E', border: '#E6DFD5' }
         };
 
-        let db = { config: { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede', logo: '' }, productos: [] };
+        let db = { config: { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '' }, productos: [] };
         let carrito = []; let seleccionActual = {}; let clicksAdmin = 0; let adminTimer = null;
 
         function initApp() {
             document.getElementById('carga-overlay').style.display = 'none';
-            if(!db.config) db.config = { nombre: 'Fiecci', whatsapp: '5491121586674', paleta: 'suede', logo: '' };
+            if(!db.config) db.config = { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '' };
             if(db.config.logo === undefined) db.config.logo = '';
             
             if(db.productos.length === 0) {
@@ -391,16 +379,42 @@
             document.documentElement.style.setProperty('--brand-border', p.border);
         }
 
+        // GENERADOR DE LOGO TIPOGRÁFICO AUTOMÁTICO
         function actualizarIdentidadVisual() {
             aplicarPaleta(db.config.paleta);
-            document.getElementById('store-name').innerText = db.config.nombre;
             document.getElementById('page-title').innerText = `${db.config.nombre} | Catálogo Mayorista`;
             
-            const logoCont = document.getElementById('store-logo-container');
+            const headerBranding = document.getElementById('header-branding');
+            
             if(db.config.logo && db.config.logo.length > 100) {
-                logoCont.innerHTML = `<img src="${db.config.logo}" class="w-full h-full object-cover bg-white">`;
+                // Si subió un logo en imagen, muestra el formato circular
+                headerBranding.innerHTML = `
+                    <div class="w-12 h-12 rounded-full border-2 border-brand-border flex items-center justify-center overflow-hidden bg-brand-bg mr-3 shrink-0">
+                        <img src="${db.config.logo}" class="w-full h-full object-cover bg-white">
+                    </div>
+                    <div>
+                        <h1 class="font-serif text-2xl text-brand-text leading-none">${db.config.nombre}</h1>
+                        <span class="text-[10px] uppercase tracking-widest text-brand-text/60 font-bold">Venta Mayorista</span>
+                    </div>
+                `;
             } else {
-                logoCont.innerHTML = `<span id="store-initials" class="font-serif font-bold text-xl leading-none text-brand-text">${db.config.nombre.charAt(0).toUpperCase()}</span>`;
+                // Si NO hay logo, aplica la estética de revista de moda text-based
+                const palabras = db.config.nombre.trim().split(' ');
+                let htmlLogo = '';
+                if(palabras.length > 1) {
+                    htmlLogo = `<span class="block">${palabras[0]}</span><span class="block text-[0.65em] opacity-90">${palabras.slice(1).join(' ')}</span>`;
+                } else {
+                    htmlLogo = `<span class="block">${palabras[0]}</span>`;
+                }
+
+                headerBranding.innerHTML = `
+                    <div class="font-serif font-black uppercase text-brand-text leading-none text-center border-y-2 border-brand-text py-1.5 px-2 tracking-widest text-xl">
+                        ${htmlLogo}
+                    </div>
+                    <div class="ml-3 pl-3 border-l border-brand-border flex items-center">
+                        <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold leading-tight">Venta<br>Mayorista</span>
+                    </div>
+                `;
             }
             
             document.getElementById('input-nombre-tienda').value = db.config.nombre;
@@ -410,7 +424,6 @@
 
         function subirLogoApp(e) {
             const file = e.target.files[0]; if(!file) return;
-            // Guardar logo como PNG para mantener transparencia, max 300px
             comprimirImagen(file, (base64) => {
                 db.config.logo = base64;
                 salvar(); actualizarIdentidadVisual(); toast('Logo actualizado 🎨');
@@ -584,7 +597,7 @@
             const data = [{ "SKU": "4", "PRODUCTO": "Zueco Roma", "PRECIO": 69900, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Nude, Negro" }];
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.json_to_sheet(data);
             ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}, {wch:25}];
-            XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Fiecci.xlsx");
+            XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Catalogo.xlsx");
         }
 
         function subirFotosMasivas(e) {
@@ -597,15 +610,13 @@
             Array.from(files).forEach(file => {
                 comprimirImagen(file, (base64Comprimido) => {
                     let nombreLimpio = file.name.substring(0, file.name.lastIndexOf('.')); if(!nombreLimpio) nombreLimpio = file.name;
-                    nombreLimpio = nombreLimpio.toLowerCase().trim();
-                    let matchFound = false;
+                    nombreLimpio = nombreLimpio.toLowerCase().trim(); let matchFound = false;
 
                     for (let p of prodsSorted) {
                         let skuLower = String(p.sku).trim().toLowerCase();
                         if (nombreLimpio.startsWith(skuLower)) {
                             let resto = nombreLimpio.substring(skuLower.length).trim();
-                            resto = resto.replace(/^[-_\s]+/, ''); 
-                            let colorIndex = 0;
+                            resto = resto.replace(/^[-_\s]+/, ''); let colorIndex = 0;
                             
                             if (resto !== '') {
                                 let posIdx = parseInt(resto);
