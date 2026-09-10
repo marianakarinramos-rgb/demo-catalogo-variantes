@@ -81,7 +81,7 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
-<body class="font-sans antialiased pb-24">
+<body class="font-sans antialiased pb-24 relative">
 
     <!-- Overlay Carga -->
     <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
@@ -91,6 +91,11 @@
         </div>
     </div>
 
+    <!-- Botón Volver Arriba -->
+    <button id="btn-subir" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="fixed bottom-6 left-6 bg-brand-text hover:bg-brand-accent text-white w-12 h-12 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 opacity-0 pointer-events-none z-[90000]">
+        <i class="fas fa-chevron-up text-lg"></i>
+    </button>
+
     <!-- ============================================== -->
     <!-- 1. VISTA TIENDA -->
     <!-- ============================================== -->
@@ -98,6 +103,7 @@
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div id="header-branding" class="flex items-center cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin"></div>
+                
                 <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm">
                     <i class="fas fa-shopping-cart text-lg"></i>
                     <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
@@ -110,6 +116,7 @@
                 <i class="fas fa-search absolute left-4 top-3.5 text-brand-text/40"></i>
                 <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-4 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
             </div>
+            
             <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5"></div>
         </main>
     </div>
@@ -286,6 +293,18 @@
     <div id="toast-container"></div>
 
     <script>
+        // Lógica del botón subir
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('btn-subir');
+            if (window.scrollY > 300) {
+                btn.classList.remove('opacity-0', 'pointer-events-none');
+                btn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                btn.classList.remove('opacity-100', 'pointer-events-auto');
+                btn.classList.add('opacity-0', 'pointer-events-none');
+            }
+        });
+
         function comprimirImagen(file, callback, maxSize = 600, format = 'image/jpeg') {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -565,83 +584,83 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Catalogo.xlsx");
         }
 
-        // ASPIRADORA NIVEL DIOS 
+        // ASPIRADORA DE TEXTOS NIVEL DIOS CON SISTEMA DE PUNTUACIÓN (SCORING)
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
             document.getElementById('carga-texto').innerText = "Procesando " + files.length + " fotos...";
             document.getElementById('carga-overlay').style.display='flex';
             let cargadas = 0; let vinculadas = 0;
             
+            // Ordenar de SKU más largo al más corto para evitar que "5" matchee antes que "50"
+            const prodsSorted = [...db.productos].sort((a,b) => String(b.sku).length - String(a.sku).length);
+
             Array.from(files).forEach(file => {
                 comprimirImagen(file, (base64Comprimido) => {
                     let nombreLimpio = file.name.substring(0, file.name.lastIndexOf('.')); if(!nombreLimpio) nombreLimpio = file.name;
                     nombreLimpio = nombreLimpio.toLowerCase().trim(); 
-                    
-                    let bestProd = null; let bestColorIdx = -1;
 
-                    for (let p of db.productos) {
+                    for (let p of prodsSorted) {
                         let skuLower = String(p.sku).trim().toLowerCase();
                         
-                        // Límite estricto: El nombre tiene que ser exactamente el SKU o empezar con el SKU + separador
+                        // Chequea si el nombre empieza con el SKU ("5", "5 negro", "5-2")
                         if (nombreLimpio === skuLower || nombreLimpio.startsWith(skuLower + '-') || nombreLimpio.startsWith(skuLower + ' ') || nombreLimpio.startsWith(skuLower + '_')) {
                             
                             let resto = nombreLimpio.substring(skuLower.length).trim();
-                            resto = resto.replace(/^[-_\s]+/, ''); // Saca el guion/espacio que quedó
-                            let cIdx = -1;
+                            resto = resto.replace(/^[-_\s]+/, ''); 
+                            
+                            let bestColorIdx = -1;
+                            let bestScore = -1;
 
-                            if (resto === '') {
-                                cIdx = 0; // Si es "5.jpg", va al primer color
-                            } else {
+                            // Evalúa todos los colores del producto y les da un puntaje según coincidencia
+                            for (let i = 0; i < p.colores.length; i++) {
+                                let cName = p.colores[i].nombre;
+                                let cClean = limpiarTexto(cName);
+                                let rClean = limpiarTexto(resto);
+
+                                // 1. Match numérico exacto (ej: "5-2" va al color índice 1)
                                 let posIdx = parseInt(resto);
                                 if (!isNaN(posIdx) && posIdx > 0 && posIdx.toString() === resto) {
-                                    cIdx = posIdx - 1; // Si es "5-2", va al color índice 1
-                                } else {
-                                    // Búsqueda exacta limpia
-                                    cIdx = p.colores.findIndex(c => limpiarTexto(c.nombre) === limpiarTexto(resto));
-                                    
-                                    // Búsqueda Inteligente (Solo Consonantes, ej: negraconbrillo vs negroconbrillos)
-                                    if (cIdx === -1) {
-                                        let rCons = toConsonants(resto);
-                                        if(rCons.length > 2) {
-                                            cIdx = p.colores.findIndex(c => {
-                                                let cCons = toConsonants(c.nombre);
-                                                return cCons.includes(rCons) || rCons.includes(cCons);
-                                            });
-                                        }
-                                    }
-                                    
-                                    // Búsqueda por 4 letras (ej: plateada vs platetado)
-                                    if (cIdx === -1) {
-                                        let rClean = limpiarTexto(resto);
-                                        if(rClean.length >= 4) {
-                                            cIdx = p.colores.findIndex(c => limpiarTexto(c.nombre).startsWith(rClean.substring(0,4)));
-                                        }
-                                    }
+                                    if(i === posIdx - 1) { bestColorIdx = i; bestScore = 9999; break; }
+                                    continue;
+                                }
+
+                                // 2. Match de texto exacto
+                                if (cClean === rClean) {
+                                    bestColorIdx = i; bestScore = 1000; break;
+                                }
+
+                                // 3. Match de texto contenido (gana el más largo)
+                                if (rClean.length > 3 && cClean.length > 3 && (rClean.includes(cClean) || cClean.includes(rClean))) {
+                                    let score = 500 + cClean.length; 
+                                    if (score > bestScore) { bestColorIdx = i; bestScore = score; }
+                                }
+
+                                // 4. Match de consonantes contenido (ej: negraconbrillo vs negroconbrillos)
+                                let cCons = toConsonants(cName);
+                                let rCons = toConsonants(resto);
+                                
+                                if (rCons.length > 2 && cCons.length > 2 && (rCons.includes(cCons) || cCons.includes(rCons))) {
+                                    let score = 100 + cCons.length; 
+                                    if (score > bestScore) { bestColorIdx = i; bestScore = score; }
                                 }
                             }
 
-                            if (cIdx !== -1 && p.colores[cIdx]) {
-                                bestProd = p; bestColorIdx = cIdx; break;
+                            if (bestColorIdx !== -1) {
+                                p.colores[bestColorIdx].img = base64Comprimido;
+                                vinculadas++;
+                                break; 
                             } else {
-                                // SALVAVIDAS: Si el color no existe, se lo encaja al primer color que no tenga foto
+                                // SALVAVIDAS: Si le pusiste un nombre raro ("5 pepito"), va al primer color vacío
                                 let emptyIdx = p.colores.findIndex(c => !c.img || c.img.length < 100);
-                                if(emptyIdx !== -1) {
-                                    bestProd = p; bestColorIdx = emptyIdx; break;
-                                } else {
-                                    bestProd = p; bestColorIdx = 0; break;
-                                }
+                                if(emptyIdx !== -1) { p.colores[emptyIdx].img = base64Comprimido; vinculadas++; break; }
+                                else { p.colores[0].img = base64Comprimido; vinculadas++; break; }
                             }
                         }
-                    }
-
-                    if (bestProd && bestColorIdx !== -1) {
-                        bestProd.colores[bestColorIdx].img = base64Comprimido;
-                        vinculadas++;
                     }
                     
                     cargadas++; document.getElementById('carga-texto').innerText = "Procesando " + cargadas + " de " + files.length + "...";
                     if(cargadas === files.length) {
-                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ El número de las fotos no coincide con ningún SKU.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
+                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ El SKU de las fotos no existe en el catálogo.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
                     }
                 });
             });
