@@ -83,7 +83,6 @@
 </head>
 <body class="font-sans antialiased pb-24 relative">
 
-    <!-- Overlay Carga -->
     <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
         <div class="text-center bg-white p-6 rounded-lg shadow-xl">
             <i class="fas fa-circle-notch fa-spin text-4xl text-brand-accent mb-3"></i>
@@ -103,7 +102,6 @@
         <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <div id="header-branding" class="flex items-center cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin"></div>
-                
                 <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm">
                     <i class="fas fa-shopping-cart text-lg"></i>
                     <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
@@ -116,7 +114,6 @@
                 <i class="fas fa-search absolute left-4 top-3.5 text-brand-text/40"></i>
                 <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-4 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
             </div>
-            
             <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5"></div>
         </main>
     </div>
@@ -181,7 +178,7 @@
                         <input type="file" id="input-logo" accept="image/*" class="w-full text-xs text-brand-text file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-brand-bg file:text-brand-text hover:file:bg-brand-border cursor-pointer transition outline-none" onchange="subirLogoApp(event)">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos (con 549)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                     <div>
@@ -199,15 +196,20 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-3 items-center justify-between">
+            <!-- Panel de Acciones (Excel + Manual) -->
+            <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm flex flex-wrap gap-4 items-center justify-between">
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="generarExcelMuestra()" class="bg-stone-100 hover:bg-stone-200 text-brand-text px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-brand-border">
-                        <i class="fas fa-download mr-2 text-brand-accent"></i> Bajar Plantilla
+                    <button onclick="abrirModalNuevoProducto()" class="bg-brand-text hover:bg-brand-accent text-white px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                        <i class="fas fa-plus mr-2"></i> Nuevo Artículo Manual
                     </button>
+                    <div class="w-px bg-brand-border mx-2"></div>
                     <label class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg text-xs font-bold transition cursor-pointer flex items-center shadow-sm">
                         <i class="fas fa-file-excel mr-2"></i> Subir Excel
                         <input type="file" accept=".xlsx" class="hidden" onchange="importarExcel(event)">
                     </label>
+                    <button onclick="generarExcelMuestra()" class="bg-stone-100 hover:bg-stone-200 text-brand-text px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-brand-border">
+                        <i class="fas fa-download mr-2 text-brand-accent"></i> Bajar Plantilla
+                    </button>
                     <button onclick="vaciarDB()" class="bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center border border-red-200">
                         <i class="fas fa-trash-alt mr-2"></i> Vaciar DB
                     </button>
@@ -216,15 +218,16 @@
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Súper Inteligente: (ej. 4 negro.jpg, 5_rafia.png)</span>
+                        <span class="text-[10px] text-brand-text/60">(ej. 4 negro.jpg, 1-2.jpg)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-4 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
-                        <i class="fas fa-arrow-up mr-2"></i> Subir Fotos
+                        <i class="fas fa-images mr-2"></i> Subir Varias
                         <input type="file" id="input-fotos-masivas" accept="image/*" multiple class="hidden" onchange="subirFotosMasivas(event)">
                     </label>
                 </div>
             </div>
 
+            <!-- Tabla de Control -->
             <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
@@ -245,11 +248,11 @@
         </main>
     </div>
 
-    <!-- MODAL EDICIÓN INDIVIDUAL -->
+    <!-- MODAL EDICIÓN Y CREACIÓN MANUAL -->
     <div id="modal-edicion" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[99999] backdrop-blur-sm p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden">
             <div class="p-5 border-b border-brand-border flex justify-between items-center bg-brand-bg">
-                <h3 class="font-serif text-xl text-brand-text">✏️ Editar Modelo</h3>
+                <h3 id="modal-titulo" class="font-serif text-xl text-brand-text">✏️ Editar Modelo</h3>
                 <button onclick="cerrarModalEdicion()" class="text-brand-text/50 hover:text-brand-accent text-xl"><i class="fas fa-times"></i></button>
             </div>
             
@@ -258,34 +261,40 @@
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">SKU</label>
-                        <input type="text" id="edit-sku" class="w-full border border-brand-border p-2 rounded-lg text-sm bg-stone-100 outline-none" readonly>
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">SKU *</label>
+                        <input type="text" id="edit-sku" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent font-bold" placeholder="Ej: 10">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Precio Mayorista ($)</label>
-                        <input type="number" id="edit-precio" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Precio Mayorista ($) *</label>
+                        <input type="number" id="edit-precio" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 45000">
                     </div>
                 </div>
                 
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre del Producto</label>
-                    <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre del Producto *</label>
+                    <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Sandalia Roma">
                 </div>
 
                 <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Talles (Separados por coma)</label>
-                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Talles (Separados por coma) *</label>
+                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: 36, 37, 38, 39, 40">
                 </div>
 
-                <div class="border-t border-brand-border pt-4 mt-4">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-brand-text mb-3">🖼️ Fotos por Color</label>
+                <!-- Campo de colores (Solo visible al crear) -->
+                <div id="grupo-crear-colores" class="hidden">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Colores (Separados por coma) *</label>
+                    <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Negro, Beige, Suela">
+                </div>
+
+                <div id="grupo-editar-fotos" class="border-t border-brand-border pt-4 mt-4">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-brand-text mb-3">🖼️ Fotos por Color (Carga Individual)</label>
                     <div id="edit-colores-container" class="space-y-3"></div>
                 </div>
             </div>
             
             <div class="p-5 border-t border-brand-border bg-stone-50 flex justify-end gap-3">
                 <button onclick="cerrarModalEdicion()" class="px-5 py-2.5 rounded-lg text-xs font-bold border border-brand-border text-brand-text hover:bg-brand-bg transition">Cancelar</button>
-                <button onclick="guardarEdicionProducto()" class="bg-brand-accent hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition shadow-sm">Guardar Cambios</button>
+                <button onclick="guardarEdicionProducto()" class="bg-brand-accent hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-xs font-bold transition shadow-sm"><i class="fas fa-save mr-2"></i>Guardar</button>
             </div>
         </div>
     </div>
@@ -293,15 +302,12 @@
     <div id="toast-container"></div>
 
     <script>
-        // Lógica del botón subir
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('btn-subir');
             if (window.scrollY > 300) {
-                btn.classList.remove('opacity-0', 'pointer-events-none');
-                btn.classList.add('opacity-100', 'pointer-events-auto');
+                btn.classList.remove('opacity-0', 'pointer-events-none'); btn.classList.add('opacity-100', 'pointer-events-auto');
             } else {
-                btn.classList.remove('opacity-100', 'pointer-events-auto');
-                btn.classList.add('opacity-0', 'pointer-events-none');
+                btn.classList.remove('opacity-100', 'pointer-events-auto'); btn.classList.add('opacity-0', 'pointer-events-none');
             }
         });
 
@@ -334,7 +340,6 @@
         }
 
         const limpiarTexto = (str) => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[-_\s]+/g, ''); };
-        const toConsonants = (str) => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[aeiouáéíóúü\s-_\W]/g, ''); };
 
         const paletasPantone = {
             suede: { bg: '#F2E8DA', text: '#593C31', accent: '#7B3F32', border: '#DFD0BB' },
@@ -584,14 +589,13 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Catalogo.xlsx");
         }
 
-        // ASPIRADORA DE TEXTOS NIVEL DIOS CON SISTEMA DE PUNTUACIÓN (SCORING)
+        // ASPIRADORA DE NOMBRES CON SCORING (SIN SALVAVIDAS FALSOS)
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
             document.getElementById('carga-texto').innerText = "Procesando " + files.length + " fotos...";
             document.getElementById('carga-overlay').style.display='flex';
             let cargadas = 0; let vinculadas = 0;
             
-            // Ordenar de SKU más largo al más corto para evitar que "5" matchee antes que "50"
             const prodsSorted = [...db.productos].sort((a,b) => String(b.sku).length - String(a.sku).length);
 
             Array.from(files).forEach(file => {
@@ -602,7 +606,7 @@
                     for (let p of prodsSorted) {
                         let skuLower = String(p.sku).trim().toLowerCase();
                         
-                        // Chequea si el nombre empieza con el SKU ("5", "5 negro", "5-2")
+                        // Solo procesa si el nombre empieza con el SKU y le sigue un separador o espacio
                         if (nombreLimpio === skuLower || nombreLimpio.startsWith(skuLower + '-') || nombreLimpio.startsWith(skuLower + ' ') || nombreLimpio.startsWith(skuLower + '_')) {
                             
                             let resto = nombreLimpio.substring(skuLower.length).trim();
@@ -611,37 +615,36 @@
                             let bestColorIdx = -1;
                             let bestScore = -1;
 
-                            // Evalúa todos los colores del producto y les da un puntaje según coincidencia
-                            for (let i = 0; i < p.colores.length; i++) {
-                                let cName = p.colores[i].nombre;
-                                let cClean = limpiarTexto(cName);
-                                let rClean = limpiarTexto(resto);
+                            if (resto === '') {
+                                // Si la foto se llama "5.jpg", se asigna al primer color
+                                bestColorIdx = 0;
+                            } else {
+                                // Scoring para encontrar el mejor color
+                                for (let i = 0; i < p.colores.length; i++) {
+                                    let cClean = limpiarTexto(p.colores[i].nombre);
+                                    let rClean = limpiarTexto(resto);
 
-                                // 1. Match numérico exacto (ej: "5-2" va al color índice 1)
-                                let posIdx = parseInt(resto);
-                                if (!isNaN(posIdx) && posIdx > 0 && posIdx.toString() === resto) {
-                                    if(i === posIdx - 1) { bestColorIdx = i; bestScore = 9999; break; }
-                                    continue;
-                                }
+                                    // Match número directo (ej. "5-2")
+                                    let posIdx = parseInt(resto);
+                                    if (!isNaN(posIdx) && posIdx > 0 && posIdx.toString() === resto) {
+                                        if(i === posIdx - 1) { bestColorIdx = i; bestScore = 9999; break; }
+                                        continue;
+                                    }
 
-                                // 2. Match de texto exacto
-                                if (cClean === rClean) {
-                                    bestColorIdx = i; bestScore = 1000; break;
-                                }
+                                    // Match exacto
+                                    if (cClean === rClean) { bestColorIdx = i; bestScore = 1000; break; }
 
-                                // 3. Match de texto contenido (gana el más largo)
-                                if (rClean.length > 3 && cClean.length > 3 && (rClean.includes(cClean) || cClean.includes(rClean))) {
-                                    let score = 500 + cClean.length; 
-                                    if (score > bestScore) { bestColorIdx = i; bestScore = score; }
-                                }
-
-                                // 4. Match de consonantes contenido (ej: negraconbrillo vs negroconbrillos)
-                                let cCons = toConsonants(cName);
-                                let rCons = toConsonants(resto);
-                                
-                                if (rCons.length > 2 && cCons.length > 2 && (rCons.includes(cCons) || cCons.includes(rCons))) {
-                                    let score = 100 + cCons.length; 
-                                    if (score > bestScore) { bestColorIdx = i; bestScore = score; }
+                                    // Match cruzado (gana el que comparte más texto, ej: "negro con brillos" vs "negro")
+                                    if (rClean.length >= 3 && cClean.length >= 3 && (rClean.includes(cClean) || cClean.includes(rClean))) {
+                                        let score = 500 + cClean.length; 
+                                        if (score > bestScore) { bestColorIdx = i; bestScore = score; }
+                                    }
+                                    
+                                    // Match 4 letras (plateada vs platetado)
+                                    if (rClean.length >= 4 && cClean.length >= 4 && (cClean.startsWith(rClean.substring(0,4)) || rClean.startsWith(cClean.substring(0,4)))) {
+                                        let score = 300 + cClean.length;
+                                        if (score > bestScore) { bestColorIdx = i; bestScore = score; }
+                                    }
                                 }
                             }
 
@@ -649,18 +652,14 @@
                                 p.colores[bestColorIdx].img = base64Comprimido;
                                 vinculadas++;
                                 break; 
-                            } else {
-                                // SALVAVIDAS: Si le pusiste un nombre raro ("5 pepito"), va al primer color vacío
-                                let emptyIdx = p.colores.findIndex(c => !c.img || c.img.length < 100);
-                                if(emptyIdx !== -1) { p.colores[emptyIdx].img = base64Comprimido; vinculadas++; break; }
-                                else { p.colores[0].img = base64Comprimido; vinculadas++; break; }
                             }
+                            // Ya NO hay salvavidas. Si pusiste "5 amarillo.jpg" y no hay color amarillo, no se sube.
                         }
                     }
                     
                     cargadas++; document.getElementById('carga-texto').innerText = "Procesando " + cargadas + " de " + files.length + "...";
                     if(cargadas === files.length) {
-                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ El SKU de las fotos no existe en el catálogo.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
+                        salvar(); setTimeout(() => { initApp(); document.getElementById('carga-overlay').style.display='none'; document.getElementById('input-fotos-masivas').value = ''; if(vinculadas === 0) toast(`❌ Las fotos no coincidieron con los SKU/Colores.`); else toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`); }, 500);
                     }
                 });
             });
@@ -692,19 +691,51 @@
             }; r.readAsArrayBuffer(f);
         }
 
+        // --- SISTEMA MANUAL DE PRODUCTOS ---
+        function abrirModalNuevoProducto() {
+            document.getElementById('modal-titulo').innerHTML = '✨ Crear Nuevo Artículo';
+            document.getElementById('edit-id').value = '';
+            document.getElementById('edit-sku').value = '';
+            document.getElementById('edit-sku').readOnly = false;
+            document.getElementById('edit-sku').classList.remove('bg-stone-100');
+            document.getElementById('edit-nombre').value = '';
+            document.getElementById('edit-precio').value = '';
+            document.getElementById('edit-talles').value = '35, 36, 37, 38, 39, 40';
+            
+            document.getElementById('grupo-crear-colores').classList.remove('hidden');
+            document.getElementById('edit-colores-texto').value = 'General';
+            
+            document.getElementById('grupo-editar-fotos').classList.add('hidden');
+            
+            document.getElementById('modal-edicion').classList.remove('hidden'); 
+            document.getElementById('modal-edicion').classList.add('flex');
+        }
+
         function abrirModalEdicion(id) {
             const p = db.productos.find(x => x.id === id); if(!p) return;
-            document.getElementById('edit-id').value = p.id; document.getElementById('edit-sku').value = p.sku; document.getElementById('edit-nombre').value = p.nombre; document.getElementById('edit-precio').value = p.precioBase; document.getElementById('edit-talles').value = p.talles.join(', ');
+            document.getElementById('modal-titulo').innerHTML = '✏️ Editar y Subir Fotos';
+            document.getElementById('edit-id').value = p.id; 
+            document.getElementById('edit-sku').value = p.sku; 
+            document.getElementById('edit-sku').readOnly = true;
+            document.getElementById('edit-sku').classList.add('bg-stone-100');
+            document.getElementById('edit-nombre').value = p.nombre; 
+            document.getElementById('edit-precio').value = p.precioBase; 
+            document.getElementById('edit-talles').value = p.talles.join(', ');
+            
+            document.getElementById('grupo-crear-colores').classList.add('hidden');
+            document.getElementById('grupo-editar-fotos').classList.remove('hidden');
+
             const cCont = document.getElementById('edit-colores-container');
             cCont.innerHTML = p.colores.map((c, idx) => {
                 let imgPrev = c.img; if(!imgPrev || imgPrev.length<100) imgPrev = getPlaceholder('SKU '+p.sku+' '+c.nombre);
                 return `
                 <div class="flex items-center gap-3 bg-white p-2 border border-brand-border rounded">
-                    <img id="edit-img-prev-${idx}" src="${imgPrev}" class="w-10 h-10 object-cover rounded border border-stone-200">
+                    <img id="edit-img-prev-${idx}" src="${imgPrev}" class="w-12 h-12 object-cover rounded border border-stone-200">
                     <div class="flex-grow">
                         <span class="text-xs font-bold text-brand-text block mb-1">Color: ${c.nombre}</span>
-                        <label class="text-[10px] bg-stone-100 hover:bg-stone-200 border border-stone-300 px-2 py-1 rounded cursor-pointer transition">
-                            Subir Foto <input type="file" accept="image/*" class="hidden" onchange="subirFotoIndividual(event, '${p.id}', ${idx})">
+                        <label class="inline-block bg-brand-accent hover:opacity-90 text-white px-3 py-1.5 rounded text-[10px] font-bold cursor-pointer transition shadow-sm">
+                            <i class="fas fa-cloud-upload-alt mr-1"></i> Subir Foto
+                            <input type="file" accept="image/*" class="hidden" onchange="subirFotoIndividual(event, '${p.id}', ${idx})">
                         </label>
                     </div>
                 </div>`;
@@ -716,14 +747,48 @@
 
         function subirFotoIndividual(e, prodId, colorIndex) {
             const file = e.target.files[0]; if(!file) return;
-            comprimirImagen(file, (base64) => { const p = db.productos.find(x => x.id === prodId); if(p && p.colores[colorIndex]) { p.colores[colorIndex].img = base64; document.getElementById(`edit-img-prev-${colorIndex}`).src = base64; } });
+            comprimirImagen(file, (base64) => { 
+                const p = db.productos.find(x => x.id === prodId); 
+                if(p && p.colores[colorIndex]) { 
+                    p.colores[colorIndex].img = base64; 
+                    document.getElementById(`edit-img-prev-${colorIndex}`).src = base64; 
+                } 
+            });
         }
 
         function guardarEdicionProducto() {
-            const id = document.getElementById('edit-id').value; const p = db.productos.find(x => x.id === id); if(!p) return;
-            p.nombre = document.getElementById('edit-nombre').value.trim(); p.precioBase = parseFloat(document.getElementById('edit-precio').value) || 0;
-            p.talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x); if(p.talles.length === 0) p.talles = ['Único'];
-            salvar(); initApp(); cerrarModalEdicion(); toast('Cambios guardados ✏️');
+            const id = document.getElementById('edit-id').value;
+            const sku = document.getElementById('edit-sku').value.trim();
+            const nombre = document.getElementById('edit-nombre').value.trim();
+            const precio = parseFloat(document.getElementById('edit-precio').value) || 0;
+            let talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x);
+            if(talles.length === 0) talles = ['Único'];
+
+            if(!sku || !nombre) return toast('SKU y Nombre son obligatorios.');
+
+            if (id) {
+                // Modo Edición
+                const p = db.productos.find(x => x.id === id); if(!p) return;
+                p.nombre = nombre; p.precioBase = precio; p.talles = talles;
+                toast('Cambios guardados ✏️');
+            } else {
+                // Modo Creación Manual
+                const existe = db.productos.find(x => String(x.sku).toLowerCase() === sku.toLowerCase());
+                if(existe) return toast('❌ El SKU ya existe.');
+                
+                let coloresCrudos = document.getElementById('edit-colores-texto').value.split(',').map(x=>x.trim()).filter(x=>x);
+                if(coloresCrudos.length === 0) coloresCrudos = ['General'];
+                
+                let arrayColores = coloresCrudos.map((c, idx) => { return { id: 'c-' + idx, nombre: c, img: '' }; });
+                
+                db.productos.unshift({
+                    id: 'id-' + Date.now(), sku: sku, nombre: nombre, precioBase: precio,
+                    talles: talles, colores: arrayColores
+                });
+                toast('¡Producto creado! Ahora subile las fotos. 🆕');
+            }
+            
+            salvar(); initApp(); cerrarModalEdicion(); 
         }
 
         function eliminarProducto(id) { if(confirm('¿Eliminar este producto?')) { db.productos = db.productos.filter(x => x.id !== id); salvar(); initApp(); toast('Producto eliminado 🗑️'); } }
@@ -737,11 +802,11 @@
                     <td class="px-4 py-3"><img src="${imgT}" class="w-10 h-10 object-cover rounded border border-brand-border shadow-sm"></td>
                     <td class="px-4 py-3 font-mono text-xs font-bold">${p.sku}</td>
                     <td class="px-4 py-3 font-medium text-xs leading-tight line-clamp-2">${p.nombre}</td>
-                    <td class="px-4 py-3 text-right font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
+                    <td class="px-4 py-3 font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
                     <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight"><b>T:</b> ${p.talles.join(', ')}<br><b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}</td>
                     <td class="px-4 py-3 text-right space-x-2">
-                        <button onclick="abrirModalEdicion('${p.id}')" class="text-brand-accent hover:opacity-70" title="Editar"><i class="fas fa-pencil-alt"></i></button>
-                        <button onclick="eliminarProducto('${p.id}')" class="text-red-500 hover:opacity-70" title="Eliminar"><i class="fas fa-trash"></i></button>
+                        <button onclick="abrirModalEdicion('${p.id}')" class="text-brand-accent hover:opacity-70 bg-stone-100 px-2 py-1 rounded" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                        <button onclick="eliminarProducto('${p.id}')" class="text-red-500 hover:opacity-70 bg-red-50 px-2 py-1 rounded" title="Eliminar"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `}).join('');
