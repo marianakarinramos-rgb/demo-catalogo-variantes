@@ -9,7 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
-    <!-- Librerías -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
@@ -217,7 +216,7 @@
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Sube todas juntas (se limpian los espacios)</span>
+                        <span class="text-[10px] text-brand-text/60">Ej: 4 negro.jpg, 1-2.jpg, 4_nude.jpg</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-4 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
                         <i class="fas fa-arrow-up mr-2"></i> Subir Fotos
@@ -294,7 +293,7 @@
     <div id="toast-container"></div>
 
     <script>
-        // COMPRESIÓN CON FALLBACK 
+        // COMPRESIÓN CON FALLBACK (Resolución 600px)
         function comprimirImagen(file, callback) {
             const reader = new FileReader();
             reader.onload = function(e) {
@@ -318,9 +317,7 @@
                         const dataUrl = canvas.toDataURL('image/jpeg', 0.6); 
                         if (dataUrl === "data:,") throw new Error("Canvas vacio");
                         callback(dataUrl);
-                    } catch(err) {
-                        callback(e.target.result); 
-                    }
+                    } catch(err) { callback(e.target.result); }
                 }
                 img.onerror = function() { callback(e.target.result); }
                 img.src = e.target.result;
@@ -332,6 +329,11 @@
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="100%" height="100%" fill="#E6DFD5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#4A3B32">${text}</text></svg>`;
             return "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
         }
+
+        // ASPIRADORA DE ACENTOS Y ESPACIOS
+        const limpiarTexto = (str) => {
+            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[-_\s]+/g, '');
+        };
 
         const paletasPantone = {
             suede: { bg: '#F2E8DA', text: '#593C31', accent: '#7B3F32', border: '#DFD0BB' },
@@ -375,16 +377,11 @@
             localforage.getItem('gesto_hippie_idb').then(function(value) {
                 if (value && value.productos) { db = value; }
                 initApp();
-            }).catch(function(err) {
-                console.error("Error cargando IndexedDB", err);
-                initApp();
-            });
+            }).catch(function(err) { initApp(); });
         });
 
         function salvar() { 
-            localforage.setItem('gesto_hippie_idb', db).catch(function(err) {
-                toast("❌ Error al guardar base de datos.");
-            });
+            localforage.setItem('gesto_hippie_idb', db).catch(function(err) { toast("❌ Error al guardar base de datos."); });
         }
 
         function triggerAdminSecret() {
@@ -433,14 +430,10 @@
                 const state = seleccionActual[p.id];
                 const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
                 
-                // Si la imagen del color activo no existe, mostramos el placeholder estricto
                 let imgFinal = colorActivo.img;
                 let phText = 'SKU ' + p.sku;
                 if (colorActivo.nombre !== 'General') phText += ' ' + colorActivo.nombre;
-                
-                if(!imgFinal || imgFinal.length < 100) {
-                    imgFinal = getPlaceholder(phText);
-                }
+                if(!imgFinal || imgFinal.length < 100) imgFinal = getPlaceholder(phText);
                 
                 return `
                 <div class="bg-white border border-brand-border rounded-xl shadow-sm overflow-hidden flex flex-col">
@@ -456,7 +449,6 @@
                             </div>
                             <h2 class="font-sans text-xs font-bold text-brand-text mb-2 leading-snug line-clamp-2">${p.nombre}</h2>
                             
-                            <!-- Ahora siempre muestra el color si no es 'General' (incluso si es 1 solo) -->
                             ${p.colores.length > 0 && p.colores[0].nombre !== 'General' ? `
                             <div class="mb-2">
                                 <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent uppercase" id="label-color-${p.id}">${colorActivo.nombre}</span></span>
@@ -503,12 +495,8 @@
             const imgEl = document.getElementById(`img-prod-${prodId}`);
             
             if(imgEl) {
-                // Si no tiene imagen, muestra el placeholder indicando qué falta
-                if(imgUrl && imgUrl.length > 100) {
-                    imgEl.src = imgUrl;
-                } else {
-                    imgEl.src = getPlaceholder('SKU ' + (p ? p.sku : '') + ' ' + colorNombre);
-                }
+                if(imgUrl && imgUrl.length > 100) imgEl.src = imgUrl;
+                else imgEl.src = getPlaceholder('SKU ' + (p ? p.sku : '') + ' ' + colorNombre);
             }
             const labelEl = document.getElementById(`label-color-${prodId}`);
             if(labelEl) labelEl.innerText = colorNombre;
@@ -599,7 +587,7 @@
 
         function generarExcelMuestra() {
             const data = [
-                { "SKU": "1", "PRODUCTO": "Zueco Capri", "PRECIO": 69900, "TALLES": "35, 36, 37, 38, 39, 40", "COLORES": "Beige" },
+                { "SKU": "1", "PRODUCTO": "Zuecos Suede", "PRECIO": 69900, "TALLES": "35, 36, 37, 38, 39, 40", "COLORES": "Suela, Beige" },
                 { "SKU": "4", "PRODUCTO": "Zueco Roma", "PRECIO": 69900, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Nude, Negro" }
             ];
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.json_to_sheet(data);
@@ -607,47 +595,60 @@
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Fiecci.xlsx");
         }
 
-        // ASPIRADORA DE ESPACIOS + NOMBRES DE COLORES (Soporta 4-2.jpg o 4-negro.jpg)
+        // ASPIRADORA DE ESPACIOS EXTREMA Y CARGA POR NOMBRE DE COLOR
         function subirFotosMasivas(e) {
             const files = e.target.files; if(!files.length) return;
             document.getElementById('carga-texto').innerText = "Procesando " + files.length + " fotos...";
             document.getElementById('carga-overlay').style.display='flex';
             
             let cargadas = 0; let vinculadas = 0;
+            
+            // Ordenar productos por longitud de SKU (los más largos primero para evitar falsos positivos "10" vs "1")
+            const prodsSorted = [...db.productos].sort((a,b) => String(b.sku).length - String(a.sku).length);
 
             Array.from(files).forEach(file => {
                 comprimirImagen(file, (base64Comprimido) => {
-                    let nombreLimpio = file.name.toLowerCase();
-                    nombreLimpio = nombreLimpio.substring(0, nombreLimpio.lastIndexOf('.'));
-                    nombreLimpio = nombreLimpio.replace(/\.(png|jpg|jpeg|webp)$/g, '').trim();
+                    let nombreLimpio = file.name.substring(0, file.name.lastIndexOf('.'));
+                    if(!nombreLimpio) nombreLimpio = file.name;
+                    nombreLimpio = nombreLimpio.toLowerCase().trim();
                     
-                    let skuBase = nombreLimpio; 
-                    let colorIndex = 0;
+                    let matchFound = false;
 
-                    const lastDash = skuBase.lastIndexOf('-');
-                    if(lastDash !== -1) {
-                        const sufijo = skuBase.substring(lastDash + 1).trim();
-                        const base = skuBase.substring(0, lastDash).trim();
-                        const posIdx = parseInt(sufijo);
-
-                        if(!isNaN(posIdx) && posIdx > 0) {
-                            skuBase = base;
-                            colorIndex = posIdx - 1; 
-                        } else {
-                            // Si el sufijo es un texto (ej: "4-negro.jpg"), busca la palabra "negro" en el excel
-                            skuBase = base;
-                            const tempProd = db.productos.find(p => String(p.sku).trim().toLowerCase() === skuBase);
-                            if(tempProd) {
-                                const cIdx = tempProd.colores.findIndex(c => c.nombre.toLowerCase().replace(/\s+/g, '') === sufijo.replace(/\s+/g, ''));
-                                if(cIdx !== -1) colorIndex = cIdx;
+                    for (let p of prodsSorted) {
+                        let skuLower = String(p.sku).trim().toLowerCase();
+                        
+                        // Si el nombre de la foto empieza con el SKU... (Ej: "4 negro" empieza con "4")
+                        if (nombreLimpio.startsWith(skuLower)) {
+                            let resto = nombreLimpio.substring(skuLower.length).trim();
+                            // Quitamos guiones, guiones bajos o espacios que quedaron pegados al SKU
+                            resto = resto.replace(/^[-_\s]+/, ''); 
+                            
+                            let colorIndex = 0;
+                            
+                            if (resto !== '') {
+                                // ¿Es un número de orden? (Ej: "2" para el segundo color)
+                                let posIdx = parseInt(resto);
+                                if (!isNaN(posIdx) && posIdx > 0 && posIdx.toString() === resto) {
+                                    colorIndex = posIdx - 1;
+                                } else {
+                                    // ¿Es el nombre del color escrito? (Ej: "negro", "cafe suede")
+                                    const cIdx = p.colores.findIndex(c => limpiarTexto(c.nombre) === limpiarTexto(resto));
+                                    if (cIdx !== -1) {
+                                        colorIndex = cIdx;
+                                    } else {
+                                        continue; // Si el resto es texto pero no coincide con ningún color, quizás es otro SKU parecido. Pasamos al siguiente producto.
+                                    }
+                                }
+                            }
+                            
+                            // Si encontramos el índice, asignamos la foto y salimos del bucle
+                            if (p.colores && p.colores[colorIndex]) {
+                                p.colores[colorIndex].img = base64Comprimido;
+                                vinculadas++;
+                                matchFound = true;
+                                break; 
                             }
                         }
-                    }
-
-                    const prod = db.productos.find(p => String(p.sku).trim().toLowerCase() === skuBase);
-                    if(prod && prod.colores && prod.colores[colorIndex]) {
-                        prod.colores[colorIndex].img = base64Comprimido;
-                        vinculadas++;
                     }
                     
                     cargadas++;
@@ -660,7 +661,7 @@
                             document.getElementById('carga-overlay').style.display='none';
                             document.getElementById('input-fotos-masivas').value = '';
                             if(vinculadas === 0) {
-                                toast(`❌ Ninguna foto coincidió. Revisa los nombres (ej: 4-2.jpg o 4-negro.jpg)`);
+                                toast(`❌ Ninguna foto coincidió. Revisa los nombres (Ej: "4", "4-2", o "4 negro").`);
                             } else {
                                 toast(`¡Terminado! ${vinculadas} fotos vinculadas 📸`);
                             }
@@ -716,6 +717,7 @@
             r.readAsArrayBuffer(f);
         }
 
+        // --- SISTEMA DE EDICIÓN INDIVIDUAL ---
         function abrirModalEdicion(id) {
             const p = db.productos.find(x => x.id === id); if(!p) return;
             
