@@ -56,31 +56,18 @@
         #vista-tienda { display: flex; flex-direction: column; min-height: 100vh; }
         #vista-admin { display: none; flex-direction: column; min-height: 100vh; background-color: var(--brand-bg); color: var(--brand-text); font-family: 'Inter', sans-serif;}
 
-        .size-selector input[type="radio"] { display: none; }
-        .size-selector label {
-            display: inline-flex; justify-content: center; align-items: center;
-            width: 30px; height: 30px; border: 1px solid var(--brand-border);
-            border-radius: 4px; cursor: pointer; transition: all 0.2s;
-            font-size: 11px; font-weight: 600; color: var(--brand-text);
-            background-color: white;
-        }
-        .size-selector input[type="radio"]:checked + label {
-            background-color: var(--brand-accent);
-            color: white; border-color: var(--brand-accent);
-        }
-
         .color-selector input[type="radio"] { display: none; }
         .color-selector label {
-            display: inline-block; padding: 2px 8px; border: 1px solid var(--brand-border);
-            border-radius: 4px; cursor: pointer; transition: all 0.2s; font-size: 10px; font-weight: 600; background: white; color: var(--brand-text);
+            display: inline-block; padding: 4px 12px; border: 1px solid var(--brand-border);
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; font-size: 11px; font-weight: 600; background: white; color: var(--brand-text);
         }
-        .color-selector input[type="radio"]:checked + label { background-color: var(--brand-accent); color: white; border-color: var(--brand-accent); }
+        .color-selector input[type="radio"]:checked + label { background-color: var(--brand-accent); color: white; border-color: var(--brand-accent); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 
         #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; }
         .toast { padding: 12px 24px; border-radius: 4px; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.1); animation: slideIn 0.3s forwards; background: var(--brand-text); color: white; font-size: 12px; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
-        .fade-in { animation: fadeIn 0.25s ease-in-out forwards; }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -141,8 +128,7 @@
                     <h3 id="qv-nombre" class="font-serif text-2xl md:text-3xl font-black text-brand-text leading-tight"></h3>
                 </div>
 
-                <div id="qv-colores-container" class="mt-4"></div>
-                <div id="qv-talles-container" class="mt-2 mb-4"></div>
+                <div id="qv-colores-container" class="mt-2 mb-4"></div>
 
                 <div class="mt-auto pt-6 border-t border-brand-border flex flex-col sm:flex-row justify-between items-center gap-4">
                     <span id="qv-precio" class="text-3xl font-black text-brand-accent font-sans w-full sm:w-auto text-center sm:text-left"></span>
@@ -253,7 +239,7 @@
                 <div class="bg-brand-bg border border-brand-border p-3 rounded-lg flex items-center gap-3">
                     <div class="text-xs">
                         <span class="font-bold block text-brand-text">Subida Masiva de Fotos</span>
-                        <span class="text-[10px] text-brand-text/60">Súper Inteligente: (ej. 4 negro.jpg, 5_rafia.png)</span>
+                        <span class="text-[10px] text-brand-text/60">Inteligente: (ej. 4 negro.jpg)</span>
                     </div>
                     <label class="bg-brand-accent hover:opacity-90 text-white px-4 py-2 rounded-md text-xs font-bold cursor-pointer transition shadow-sm">
                         <i class="fas fa-arrow-up mr-2"></i> Subir Fotos
@@ -271,7 +257,7 @@
                                 <th class="px-4 py-3 w-20">SKU</th>
                                 <th class="px-4 py-3">Producto</th>
                                 <th class="px-4 py-3">Precio</th>
-                                <th class="px-4 py-3">Talles / Colores</th>
+                                <th class="px-4 py-3">Colores / Variantes</th>
                                 <th class="px-4 py-3 text-right">Acciones</th>
                             </tr>
                         </thead>
@@ -309,14 +295,9 @@
                     <input type="text" id="edit-nombre" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
                 </div>
 
-                <div>
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Talles (Separados por coma) *</label>
-                    <input type="text" id="edit-talles" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
-                </div>
-
                 <div id="grupo-crear-colores" class="hidden">
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Colores (Separados por coma) *</label>
-                    <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-brand-text/70 mb-1">Colores / Variantes (Separados por coma) *</label>
+                    <input type="text" id="edit-colores-texto" class="w-full border border-brand-border p-2 rounded-lg text-sm outline-none focus:border-brand-accent" placeholder="Ej: Negro, Blanco, Suela">
                 </div>
 
                 <div id="grupo-editar-fotos" class="border-t border-brand-border pt-4 mt-4">
@@ -335,7 +316,7 @@
     <div id="toast-container"></div>
 
     <script>
-        // Lógica de Scroll Automático para la flecha flotante
+        // Flecha de Scroll con Sensibilidad
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('btn-subir');
             if (window.scrollY > 50) {
@@ -395,15 +376,15 @@
             
             if(db.productos.length === 0) {
                 db.productos = [
-                    { id: '1', sku: '4', nombre: 'Zueco Roma', precioBase: 69900, talles: [36, 37, 38, 39, 40], colores: [{ id: 'c0', nombre: 'Nude', img: '' }, { id: 'c1', nombre: 'Negro', img: '' }] },
-                    { id: '2', sku: '5', nombre: 'Sandalia Tulum', precioBase: 59999, talles: [36, 37, 38, 39, 40], colores: [{ id: 'c0', nombre: 'Negro', img: '' }, { id: 'c1', nombre: 'Animal Print', img: '' }, { id: 'c2', nombre: 'Rafia', img: '' }, { id: 'c3', nombre: 'Negro con Brillos', img: '' }, { id: 'c4', nombre: 'Suela', img: '' }, { id: 'c5', nombre: 'Platetado', img: '' }] }
+                    { id: '1', sku: '4', nombre: 'Zueco Roma', precioBase: 69900, colores: [{ id: 'c0', nombre: 'Nude', img: '' }, { id: 'c1', nombre: 'Negro', img: '' }] },
+                    { id: '2', sku: '5', nombre: 'Sandalia Tulum', precioBase: 59999, colores: [{ id: 'c0', nombre: 'Negro', img: '' }, { id: 'c1', nombre: 'Animal Print', img: '' }, { id: 'c2', nombre: 'Rafia', img: '' }, { id: 'c4', nombre: 'Suela', img: '' }, { id: 'c5', nombre: 'Plateado', img: '' }] }
                 ];
             }
 
             actualizarIdentidadVisual();
             db.productos.forEach(p => {
-                if(p.colores && p.colores.length > 0 && p.talles && p.talles.length > 0) {
-                    if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
+                if(p.colores && p.colores.length > 0) {
+                    if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, qty: 1 };
                 }
             });
             renderProductos(); renderStockAdmin();
@@ -465,10 +446,10 @@
 
         const formatMoney = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
 
-        // --- LÓGICA DE QUICK VIEW (VISTA RÁPIDA) ---
+        // --- QUICK VIEW LOGIC (SIN TALLES) ---
         function abrirQuickView(id) {
             const p = db.productos.find(x => x.id === id); if(!p) return;
-            const state = seleccionActual[id] || { color: p.colores[0].id, talle: p.talles[0] };
+            const state = seleccionActual[id] || { color: p.colores[0].id };
             const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
             
             let img = colorActivo.img;
@@ -479,11 +460,10 @@
             document.getElementById('qv-nombre').innerText = p.nombre;
             document.getElementById('qv-precio').innerText = formatMoney(p.precioBase);
 
-            // Cargar selectores de colores en Modal
             const colContainer = document.getElementById('qv-colores-container');
             if (p.colores.length > 0 && p.colores[0].nombre !== 'General') {
                 colContainer.innerHTML = `
-                    <span class="text-[10px] uppercase tracking-widest text-brand-text/60 font-bold block mb-2">Color: <span class="text-brand-accent uppercase" id="qv-label-color">${colorActivo.nombre}</span></span>
+                    <span class="text-[10px] uppercase tracking-widest text-brand-text/60 font-bold block mb-2">Variante: <span class="text-brand-accent uppercase" id="qv-label-color">${colorActivo.nombre}</span></span>
                     <div class="flex gap-2 color-selector flex-wrap">
                         ${p.colores.map(c => `
                             <div>
@@ -495,23 +475,6 @@
                 `;
                 colContainer.style.display = 'block';
             } else { colContainer.style.display = 'none'; }
-
-            // Cargar selectores de talles en Modal
-            const talContainer = document.getElementById('qv-talles-container');
-            if (p.talles && p.talles.length > 0 && p.talles[0] !== 'Único') {
-                talContainer.innerHTML = `
-                    <span class="text-[10px] uppercase tracking-widest text-brand-text/60 font-bold block mb-2">Talle seleccionado</span>
-                    <div class="flex gap-2 size-selector flex-wrap">
-                        ${p.talles.map(t => `
-                            <div>
-                                <input type="radio" name="qv-talle-${p.id}" id="qv-tal-${p.id}-${t}" value="${t}" ${t === state.talle ? 'checked' : ''} onchange="qvCambiarTalle('${p.id}', '${t}')">
-                                <label for="qv-tal-${p.id}-${t}">${t}</label>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                talContainer.style.display = 'block';
-            } else { talContainer.style.display = 'none'; }
 
             document.getElementById('qv-btn-add').onclick = () => { addCart(p.id); cerrarQuickView(); };
             
@@ -525,7 +488,7 @@
         }
 
         function qvCambiarColor(prodId, colorId, colorNombre, imgUrl) {
-            cambiarColor(prodId, colorId, colorNombre, imgUrl); // Sincroniza estado de grilla central
+            cambiarColor(prodId, colorId, colorNombre, imgUrl); // Sincroniza con grilla
             const imgEl = document.getElementById('qv-img');
             const p = db.productos.find(x => x.id === prodId);
             if(imgUrl && imgUrl.length > 100) imgEl.src = imgUrl; 
@@ -534,18 +497,14 @@
             if(labelEl) labelEl.innerText = colorNombre;
         }
 
-        function qvCambiarTalle(prodId, talle) {
-            cambiarTalle(prodId, talle); // Sincroniza estado de grilla central
-            renderProductos(); // Re-render silencioso del grid
-        }
-
+        // --- RENDER TIENDA ---
         function renderProductos() {
             const grid = document.getElementById('grid-productos');
             const term = document.getElementById('buscador').value.toLowerCase();
             const filtrados = db.productos.filter(p => p.nombre.toLowerCase().includes(term) || p.sku.toLowerCase().includes(term));
 
             grid.innerHTML = filtrados.length ? filtrados.map(p => {
-                if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, talle: p.talles[0], qty: 1 };
+                if(!seleccionActual[p.id]) seleccionActual[p.id] = { color: p.colores[0].id, qty: 1 };
                 const state = seleccionActual[p.id]; const colorActivo = p.colores.find(c => c.id === state.color) || p.colores[0];
                 let imgFinal = colorActivo.img; let phText = 'SKU ' + p.sku;
                 if (colorActivo.nombre !== 'General') phText += ' ' + colorActivo.nombre;
@@ -556,21 +515,21 @@
                     <div class="aspect-[4/5] bg-stone-100 relative overflow-hidden border-b border-brand-border group cursor-pointer" onclick="abrirQuickView('${p.id}')">
                         <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:opacity-90" id="img-prod-${p.id}" onerror="this.src='${getPlaceholder('SKU '+p.sku)}'">
                         <div class="absolute inset-0 bg-black/10 hidden group-hover:flex items-center justify-center transition">
-                            <span class="bg-white text-brand-text text-[10px] font-bold px-3 py-1.5 rounded shadow-lg uppercase tracking-wider"><i class="fas fa-search-plus mr-1"></i> Ver Detalle</span>
+                            <span class="bg-white text-brand-text text-[10px] font-bold px-3 py-1.5 rounded shadow-lg uppercase tracking-wider"><i class="fas fa-search-plus mr-1"></i> Ver</span>
                         </div>
                     </div>
                     
                     <div class="p-4 flex flex-col flex-grow justify-between">
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] bg-stone-100 text-brand-text font-bold px-2 py-0.5 rounded uppercase border border-brand-border">Calzado</span>
+                                <span class="text-[9px] bg-stone-100 text-brand-text font-bold px-2 py-0.5 rounded uppercase border border-brand-border">Catálogo</span>
                                 <span class="text-[9px] text-brand-text/50 font-bold">SKU: ${p.sku}</span>
                             </div>
                             <h2 class="font-sans text-xs font-bold text-brand-text mb-2 leading-snug line-clamp-2">${p.nombre}</h2>
                             
                             ${p.colores.length > 0 && p.colores[0].nombre !== 'General' ? `
-                            <div class="mb-2">
-                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Color: <span class="text-brand-accent uppercase" id="label-color-${p.id}">${colorActivo.nombre}</span></span>
+                            <div class="mb-4">
+                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Variante: <span class="text-brand-accent uppercase" id="label-color-${p.id}">${colorActivo.nombre}</span></span>
                                 <div class="flex gap-1 color-selector flex-wrap">
                                     ${p.colores.map(c => `
                                         <div>
@@ -580,18 +539,6 @@
                                     `).join('')}
                                 </div>
                             </div>` : ''}
-
-                            <div class="mb-3 mt-2">
-                                <span class="text-[9px] uppercase tracking-widest text-brand-text/60 font-bold block mb-1">Talles</span>
-                                <div class="flex gap-1 size-selector flex-wrap">
-                                    ${p.talles.map(t => `
-                                        <div>
-                                            <input type="radio" name="talle-${p.id}" id="tal-${p.id}-${t}" value="${t}" ${t === state.talle ? 'checked' : ''} onchange="cambiarTalle('${p.id}', '${t}')">
-                                            <label for="tal-${p.id}-${t}">${t}</label>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
                         </div>
 
                         <div>
@@ -617,15 +564,13 @@
             const labelEl = document.getElementById(`label-color-${prodId}`); if(labelEl) labelEl.innerText = colorNombre;
         }
 
-        function cambiarTalle(prodId, talle) { seleccionActual[prodId].talle = talle; }
-
         function addCart(prodId) {
             const p = db.productos.find(x => x.id === prodId); const s = seleccionActual[prodId]; const col = p.colores.find(c => c.id === s.color);
-            const key = `${prodId}|${s.color}|${s.talle}`; const ex = carrito.find(x => x.key === key);
+            const key = `${prodId}|${s.color}`; const ex = carrito.find(x => x.key === key);
             if (ex) ex.qty += 1;
             else {
                 let finalImg = col.img || p.colores[0].img; if(!finalImg || finalImg.length < 100) finalImg = getPlaceholder(p.sku);
-                carrito.push({ key: key, prodNombre: p.nombre, colorNombre: col.nombre, talle: s.talle, precio: p.precioBase, qty: 1, img: finalImg });
+                carrito.push({ key: key, prodNombre: p.nombre, colorNombre: col.nombre, precio: p.precioBase, qty: 1, img: finalImg });
             }
             updateCartUI(); toast('Agregado al pedido'); if(document.getElementById('modal-carrito').classList.contains('translate-x-full')) toggleCart();
         }
@@ -653,7 +598,7 @@
                         <img src="${x.img}" class="w-14 h-14 object-cover rounded-lg border border-brand-border">
                         <div class="flex-grow">
                             <h4 class="text-xs font-bold text-brand-text leading-tight line-clamp-1">${x.prodNombre}</h4>
-                            <p class="text-[10px] text-gray-500 my-0.5">${x.colorNombre} | T: ${x.talle}</p>
+                            <p class="text-[10px] text-gray-500 my-0.5">${x.colorNombre}</p>
                             <span class="text-xs font-black text-brand-accent">${x.qty} u. x ${formatMoney(x.precio)}</span>
                         </div>
                         <div class="flex flex-col items-end gap-2">
@@ -690,7 +635,7 @@
             let t = 0;
             carrito.forEach(x => {
                 const sub = x.precio * x.qty; t += sub;
-                txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre} - T: ${x.talle}) - ${formatMoney(sub)}\n`;
+                txt += `▪ ${x.qty}x ${x.prodNombre} (${x.colorNombre}) - ${formatMoney(sub)}\n`;
             });
             txt += `\n📦 *TOTAL ESTIMADO: ${formatMoney(t)}*`;
             
@@ -705,9 +650,9 @@
         }
 
         function generarExcelMuestra() {
-            const data = [{ "SKU": "4", "PRODUCTO": "Zueco Roma", "PRECIO": 69900, "TALLES": "36, 37, 38, 39, 40", "COLORES": "Nude, Negro" }];
+            const data = [{ "SKU": "4", "PRODUCTO": "Zueco Roma", "PRECIO": 69900, "COLORES": "Nude, Negro" }];
             const wb = XLSX.utils.book_new(); const ws = XLSX.utils.json_to_sheet(data);
-            ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}, {wch:25}];
+            ws['!cols'] = [{wch:10}, {wch:40}, {wch:12}, {wch:25}];
             XLSX.utils.book_append_sheet(wb, ws, "Catalogo"); XLSX.writeFile(wb, "Plantilla_Catalogo.xlsx");
         }
 
@@ -785,19 +730,19 @@
             r.onload = function(evt) {
                 try {
                     let d = new Uint8Array(evt.target.result); let wb = XLSX.read(d, {type:'array'}); let sheet = wb.Sheets[wb.SheetNames[0]]; let json = XLSX.utils.sheet_to_json(sheet, {header:1}); let h = json[0].map(x=>String(x||'').toUpperCase().trim());
-                    let cSku = h.indexOf('SKU'), cProd = h.indexOf('PRODUCTO'), cPre = h.indexOf('PRECIO'), cTal = h.indexOf('TALLES'), cCol = h.indexOf('COLORES');
+                    let cSku = h.indexOf('SKU'), cProd = h.indexOf('PRODUCTO'), cPre = h.indexOf('PRECIO'), cCol = h.indexOf('COLORES');
                     if(cSku===-1 || cProd===-1 || cPre===-1) throw new Error("Faltan columnas (SKU, PRODUCTO, PRECIO).");
                     let nuevosProductos = [];
                     for(let i=1; i<json.length; i++) {
                         let row = json[i]; if(!row || !row[cProd]) continue;
                         let sku = String(row[cSku]||i).trim(); let nombre = String(row[cProd]).trim(); let precio = parseFloat(String(row[cPre]).replace(',','.')) || 0;
-                        let rawTalles = cTal !== -1 ? String(row[cTal]||'').split(',').map(x=>x.trim()).filter(x=>x) : ['Único']; let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
+                        let rawColores = cCol !== -1 ? String(row[cCol]||'General').split(',').map(x=>x.trim()).filter(x=>x) : ['General'];
                         let prodAnterior = db.productos.find(p => String(p.sku).trim().toLowerCase() === sku.toLowerCase());
                         let arrayColores = rawColores.map((c, idx) => {
                             let imgAnterior = ''; if(prodAnterior && prodAnterior.colores && prodAnterior.colores[idx]) imgAnterior = prodAnterior.colores[idx].img; else if(idx === 0 && prodAnterior && prodAnterior.colores[0]) imgAnterior = prodAnterior.colores[0].img;
                             return { id: 'c-' + idx, nombre: c, img: imgAnterior };
                         });
-                        nuevosProductos.push({ id: 'id-' + Date.now() + i, sku: sku, nombre: nombre, precioBase: precio, talles: rawTalles.length ? rawTalles : ['Único'], colores: arrayColores });
+                        nuevosProductos.push({ id: 'id-' + Date.now() + i, sku: sku, nombre: nombre, precioBase: precio, colores: arrayColores });
                     }
                     if(nuevosProductos.length > 0) { db.productos = nuevosProductos; salvar(); initApp(); toast("Excel importado ✅"); } else toast("El Excel está vacío.");
                 } catch(err) { toast("❌ Error: " + err.message); } finally { document.getElementById('carga-overlay').style.display='none'; e.target.value=''; }
@@ -807,7 +752,7 @@
         function abrirModalNuevoProducto() {
             document.getElementById('modal-titulo').innerHTML = '✨ Crear Nuevo Artículo';
             document.getElementById('edit-id').value = ''; document.getElementById('edit-sku').value = ''; document.getElementById('edit-sku').readOnly = false; document.getElementById('edit-sku').classList.remove('bg-stone-100');
-            document.getElementById('edit-nombre').value = ''; document.getElementById('edit-precio').value = ''; document.getElementById('edit-talles').value = '35, 36, 37, 38, 39, 40';
+            document.getElementById('edit-nombre').value = ''; document.getElementById('edit-precio').value = ''; 
             document.getElementById('grupo-crear-colores').classList.remove('hidden'); document.getElementById('edit-colores-texto').value = 'General';
             document.getElementById('grupo-editar-fotos').classList.add('hidden');
             abrirModalUI('modal-edicion');
@@ -817,7 +762,7 @@
             const p = db.productos.find(x => x.id === id); if(!p) return;
             document.getElementById('modal-titulo').innerHTML = '✏️ Editar y Subir Fotos';
             document.getElementById('edit-id').value = p.id; document.getElementById('edit-sku').value = p.sku; document.getElementById('edit-sku').readOnly = true; document.getElementById('edit-sku').classList.add('bg-stone-100');
-            document.getElementById('edit-nombre').value = p.nombre; document.getElementById('edit-precio').value = p.precioBase; document.getElementById('edit-talles').value = p.talles.join(', ');
+            document.getElementById('edit-nombre').value = p.nombre; document.getElementById('edit-precio').value = p.precioBase; 
             document.getElementById('grupo-crear-colores').classList.add('hidden'); document.getElementById('grupo-editar-fotos').classList.remove('hidden');
             const cCont = document.getElementById('edit-colores-container');
             cCont.innerHTML = p.colores.map((c, idx) => {
@@ -836,7 +781,7 @@
             abrirModalUI('modal-edicion');
         }
 
-        function cerrarModalEdicion() { cerrarModal('modal-edicion'); }
+        function cerrarModalEdicion() { document.getElementById('modal-edicion').classList.add('hidden'); document.getElementById('modal-edicion').classList.remove('flex'); }
 
         function subirFotoIndividual(e, prodId, colorIndex) {
             const file = e.target.files[0]; if(!file) return;
@@ -845,18 +790,17 @@
 
         function guardarEdicionProducto() {
             const id = document.getElementById('edit-id').value; const sku = document.getElementById('edit-sku').value.trim(); const nombre = document.getElementById('edit-nombre').value.trim(); const precio = parseFloat(document.getElementById('edit-precio').value) || 0;
-            let talles = document.getElementById('edit-talles').value.split(',').map(x=>x.trim()).filter(x=>x); if(talles.length === 0) talles = ['Único'];
             if(!sku || !nombre) return toast('SKU y Nombre son obligatorios.');
 
             if (id) {
                 const p = db.productos.find(x => x.id === id); if(!p) return;
-                p.nombre = nombre; p.precioBase = precio; p.talles = talles; toast('Cambios guardados ✏️');
+                p.nombre = nombre; p.precioBase = precio; toast('Cambios guardados ✏️');
             } else {
                 const existe = db.productos.find(x => String(x.sku).toLowerCase() === sku.toLowerCase());
                 if(existe) return toast('❌ El SKU ya existe.');
                 let coloresCrudos = document.getElementById('edit-colores-texto').value.split(',').map(x=>x.trim()).filter(x=>x); if(coloresCrudos.length === 0) coloresCrudos = ['General'];
                 let arrayColores = coloresCrudos.map((c, idx) => { return { id: 'c-' + idx, nombre: c, img: '' }; });
-                db.productos.unshift({ id: 'id-' + Date.now(), sku: sku, nombre: nombre, precioBase: precio, talles: talles, colores: arrayColores });
+                db.productos.unshift({ id: 'id-' + Date.now(), sku: sku, nombre: nombre, precioBase: precio, colores: arrayColores });
                 toast('¡Producto creado! Ahora subile las fotos. 🆕');
             }
             salvar(); initApp(); cerrarModalEdicion(); 
@@ -874,7 +818,7 @@
                     <td class="px-4 py-3 font-mono text-xs font-bold">${p.sku}</td>
                     <td class="px-4 py-3 font-medium text-xs leading-tight line-clamp-2">${p.nombre}</td>
                     <td class="px-4 py-3 font-bold text-brand-accent">${formatMoney(p.precioBase)}</td>
-                    <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight"><b>T:</b> ${p.talles.join(', ')}<br><b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}</td>
+                    <td class="px-4 py-3 text-[10px] text-gray-500 leading-tight"><b>C:</b> ${p.colores.map(c=>c.nombre).join(', ')}</td>
                     <td class="px-4 py-3 text-right space-x-2">
                         <button onclick="abrirModalEdicion('${p.id}')" class="text-brand-accent hover:opacity-70 bg-stone-100 px-2 py-1 rounded" title="Editar"><i class="fas fa-pencil-alt"></i></button>
                         <button onclick="eliminarProducto('${p.id}')" class="text-red-500 hover:opacity-70 bg-red-50 px-2 py-1 rounded" title="Eliminar"><i class="fas fa-trash"></i></button>
@@ -886,6 +830,16 @@
         function cerrarSesion() { document.body.classList.remove('modo-admin'); }
         function vaciarDB() { if(confirm('¿Seguro querés vaciar todo?')) { db.productos=[]; salvar(); initApp(); toast('Base vaciada.'); } }
         function toast(m) { const c=document.getElementById('toast-container'), d=document.createElement('div'); d.className='toast'; d.innerHTML=`<i class="fas fa-info-circle mr-2"></i> ${m}`; c.appendChild(d); setTimeout(()=>{ d.style.animation='slideIn 0.3s reverse forwards'; setTimeout(()=>d.remove(),300); }, 3500); }
+        
+        // Anti-curiosos
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) { return false; } // F12
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 73) { return false; } // Ctrl+Shift+I
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 74) { return false; } // Ctrl+Shift+J
+            if(e.ctrlKey && e.keyCode == 85) { return false; } // Ctrl+U
+            if(e.ctrlKey && e.keyCode == 83) { return false; } // Ctrl+S
+        }
     </script>
 </body>
 </html>
