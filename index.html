@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">Catálogo Mayorista</title>
     
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#F9F6F0">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icono-192x192.png">
+    <link rel="apple-touch-icon" href="/icono-192x192.png">
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600;1,900&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -89,14 +95,38 @@
     <!-- 1. VISTA TIENDA -->
     <!-- ============================================== -->
     <div id="vista-tienda">
-        <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm">
+        <!-- BANNER PWA -->
+        <div id="pwa-install-banner" class="hidden bg-brand-accent/10 border border-brand-accent/30 rounded-2xl p-4 mx-6 mt-4 flex items-center justify-between fade-in shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-brand-accent text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-brand-text">Instalar Aplicación</h4>
+                    <p class="text-[10px] text-brand-text/60">Acceso directo en tu pantalla</p>
+                </div>
+            </div>
+            <button onclick="ejecutarInstalacionPWA()" class="bg-brand-accent text-white font-bold text-xs px-4 py-2 rounded-xl shadow-md hover:opacity-90 transition">
+                Instalar
+            </button>
+        </div>
+
+        <header class="bg-white border-b border-brand-border sticky top-0 z-40 shadow-sm mt-2">
             <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-                <div id="header-branding" class="flex items-center cursor-pointer select-none" onclick="triggerAdminSecret()" title="Panel Admin"></div>
+                <div id="header-branding" class="flex items-center select-none"></div>
                 
-                <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm">
-                    <i class="fas fa-shopping-cart text-lg"></i>
-                    <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
-                </button>
+                <div class="flex items-center gap-3">
+                    <button onclick="compartirTienda()" class="text-brand-text/50 hover:text-brand-accent text-lg transition bg-brand-bg w-10 h-10 rounded-full flex items-center justify-center border border-brand-border shadow-sm">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <button onclick="abrirModalAdmin()" class="text-brand-text/50 hover:text-brand-accent text-xs transition bg-brand-bg w-10 h-10 rounded-full flex items-center justify-center border border-brand-border shadow-sm">
+                        <i class="fas fa-lock"></i>
+                    </button>
+                    <button onclick="toggleCart()" class="relative bg-brand-accent text-white w-11 h-11 rounded-full flex items-center justify-center hover:opacity-90 transition shadow-sm ml-1">
+                        <i class="fas fa-shopping-cart text-lg"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -165,6 +195,20 @@
     </div>
     <div id="overlay" onclick="toggleCart()" class="fixed inset-0 bg-black/40 z-40 hidden backdrop-blur-sm transition-opacity"></div>
 
+    <!-- MODAL LOGIN ADMIN -->
+    <div id="modal-login" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[99999] backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 flex flex-col text-center fade-in">
+            <div class="w-16 h-16 bg-brand-accent/10 text-brand-accent rounded-full flex items-center justify-center mx-auto mb-4 text-2xl border border-brand-accent/30"><i class="fas fa-lock"></i></div>
+            <h3 class="font-serif text-xl text-brand-text mb-2">Acceso Restringido</h3>
+            <p class="text-xs text-brand-text/60 mb-6">Ingresá tu PIN de seguridad para gestionar la tienda.</p>
+            <input type="password" id="admin-pin-input" placeholder="****" maxlength="4" class="w-full text-center text-3xl tracking-[0.5em] border border-brand-border p-3 rounded-xl outline-none focus:border-brand-accent font-bold text-brand-text mb-6 bg-brand-bg" onkeypress="if(event.key === 'Enter') verificarPinAdmin()">
+            <div class="flex gap-3">
+                <button onclick="cerrarModalLogin()" class="flex-1 bg-white text-brand-text/70 border border-brand-border py-3 rounded-xl font-bold hover:bg-stone-100 transition">Cancelar</button>
+                <button onclick="verificarPinAdmin()" class="flex-1 bg-brand-accent text-white py-3 rounded-xl font-bold hover:opacity-90 transition shadow-sm">Ingresar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ============================================== -->
     <!-- 2. VISTA ADMIN -->
     <!-- ============================================== -->
@@ -178,21 +222,18 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <a href="./" target="_blank" class="bg-brand-bg hover:bg-brand-border text-brand-text border border-brand-border px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-external-link-alt mr-2"></i> Ver Tienda al Lado
-                </a>
                 <button onclick="cerrarSesion()" class="bg-brand-accent text-white px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-eye mr-2"></i> Ocultar Admin
+                    <i class="fas fa-eye mr-2"></i> Cerrar Admin
                 </button>
             </div>
         </header>
 
         <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm space-y-4">
-                <h3 class="font-serif text-lg text-brand-text">⚙️ Identidad de la Marca</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <h3 class="font-serif text-lg text-brand-text">⚙️ Identidad y Seguridad</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre de la Tienda</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Nombre Tienda</label>
                         <input type="text" id="input-nombre-tienda" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                     <div>
@@ -200,17 +241,21 @@
                         <input type="file" id="input-logo" accept="image/*" class="w-full text-xs text-brand-text file:mr-2 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-brand-bg file:text-brand-text hover:file:bg-brand-border cursor-pointer transition outline-none" onchange="subirLogoApp(event)">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp Pedidos</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">WhatsApp</label>
                         <input type="text" id="input-whatsapp" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta PANTONE</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-text/70 mb-1">Paleta Color</label>
                         <select id="select-paleta" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent bg-white">
                             <option value="suede">Deep Suede Brown (Café)</option>
                             <option value="terracota">Warm Terracotta (Terracota)</option>
                             <option value="olive">Olive Green (Verde Oliva)</option>
                             <option value="yute">Creamy Jute (Yute/Crema)</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-brand-accent mb-1">PIN Admin (4 Dígitos)</label>
+                        <input type="password" id="input-pin" maxlength="4" placeholder="1234" class="w-full border border-brand-border p-2.5 rounded-lg text-sm outline-none focus:border-brand-accent text-brand-accent font-bold text-center tracking-widest">
                     </div>
                 </div>
                 <div class="flex justify-end pt-2">
@@ -316,10 +361,78 @@
     <div id="toast-container"></div>
 
     <script>
-        // Flecha de Scroll con Sensibilidad
+        // Modal Utilities
+        function abrirModalUI(id) { const el = document.getElementById(id); if(el){ el.classList.remove('hidden'); el.classList.add('flex'); } }
+        function cerrarModal(id) { const el = document.getElementById(id); if(el){ el.classList.add('hidden'); el.classList.remove('flex'); } }
+
+        // Funciones de Login y PWA añadidas
+        function compartirTienda() {
+            const shareData = {
+                title: db.config.nombre || 'Mi Tienda',
+                text: `Mirá nuestro catálogo online:`,
+                url: window.location.href
+            };
+            if (navigator.share) {
+                navigator.share(shareData).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                toast('¡Link del catálogo copiado!');
+            }
+        }
+
+        function abrirModalAdmin() {
+            document.getElementById('admin-pin-input').value = '';
+            abrirModalUI('modal-login');
+            setTimeout(() => document.getElementById('admin-pin-input').focus(), 100);
+        }
+
+        function cerrarModalLogin() {
+            cerrarModal('modal-login');
+        }
+
+        function verificarPinAdmin() {
+            const pin = document.getElementById('admin-pin-input').value;
+            const pinValido = db.config.pinAdmin || '1234';
+            if (pin === pinValido) {
+                cerrarModalLogin();
+                document.body.classList.add('modo-admin');
+                toast('🔓 Modo Administrador Activado');
+            } else {
+                toast('❌ PIN Incorrecto');
+                document.getElementById('admin-pin-input').value = '';
+            }
+        }
+
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('pwa-install-banner');
+            if (banner) banner.classList.remove('hidden');
+        });
+
+        function ejecutarInstalacionPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('pwa-install-banner').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(err => console.log('PWA SW Error:', err));
+            });
+        }
+
+        // Flecha de Scroll Automática
         window.addEventListener('scroll', () => {
             const btn = document.getElementById('btn-subir');
-            if (window.scrollY > 50) {
+            if (window.scrollY > 300) {
                 btn.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
                 btn.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
             } else {
@@ -366,13 +479,14 @@
             yute: { bg: '#FAF6F0', text: '#4A3B32', accent: '#CB6D3E', border: '#E6DFD5' }
         };
 
-        let db = { config: { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '' }, productos: [] };
-        let carrito = []; let seleccionActual = {}; let clicksAdmin = 0; let adminTimer = null;
+        let db = { config: { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '', pinAdmin: '1234' }, productos: [] };
+        let carrito = []; let seleccionActual = {}; 
 
         function initApp() {
             document.getElementById('carga-overlay').style.display = 'none';
-            if(!db.config) db.config = { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '' };
+            if(!db.config) db.config = { nombre: 'Hippie Zapatos', whatsapp: '5491121586674', paleta: 'suede', logo: '', pinAdmin: '1234' };
             if(db.config.logo === undefined) db.config.logo = '';
+            if(!db.config.pinAdmin) db.config.pinAdmin = '1234';
             
             if(db.productos.length === 0) {
                 db.productos = [
@@ -400,12 +514,6 @@
 
         function salvar() { localforage.setItem('gesto_hippie_idb', db).catch(function(err) { toast("❌ Error al guardar base de datos."); }); }
 
-        function triggerAdminSecret() {
-            clicksAdmin++; if(adminTimer) clearTimeout(adminTimer);
-            if(clicksAdmin >= 3) { clicksAdmin = 0; document.body.classList.add('modo-admin'); toast('🔓 Panel Admin abierto'); return; }
-            adminTimer = setTimeout(() => { clicksAdmin = 0; }, 600);
-        }
-
         function aplicarPaleta(nombre) {
             const p = paletasPantone[nombre] || paletasPantone.suede;
             document.documentElement.style.setProperty('--brand-bg', p.bg);
@@ -430,6 +538,7 @@
             document.getElementById('input-nombre-tienda').value = db.config.nombre;
             document.getElementById('input-whatsapp').value = db.config.whatsapp;
             document.getElementById('select-paleta').value = db.config.paleta;
+            document.getElementById('input-pin').value = db.config.pinAdmin || '1234';
         }
 
         function subirLogoApp(e) {
@@ -441,12 +550,13 @@
             db.config.nombre = document.getElementById('input-nombre-tienda').value.trim() || 'Tienda';
             db.config.whatsapp = document.getElementById('input-whatsapp').value.trim() || '5491121586674';
             db.config.paleta = document.getElementById('select-paleta').value;
+            db.config.pinAdmin = document.getElementById('input-pin').value.trim() || '1234';
             salvar(); actualizarIdentidadVisual(); toast('¡Configuración guardada! ✨');
         }
 
         const formatMoney = (monto) => new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(monto);
 
-        // --- QUICK VIEW LOGIC (SIN TALLES) ---
+        // --- QUICK VIEW (SIN TALLES) ---
         function abrirQuickView(id) {
             const p = db.productos.find(x => x.id === id); if(!p) return;
             const state = seleccionActual[id] || { color: p.colores[0].id };
@@ -477,15 +587,10 @@
             } else { colContainer.style.display = 'none'; }
 
             document.getElementById('qv-btn-add').onclick = () => { addCart(p.id); cerrarQuickView(); };
-            
-            document.getElementById('modal-quick-view').classList.remove('hidden');
-            document.getElementById('modal-quick-view').classList.add('flex');
+            abrirModalUI('modal-quick-view');
         }
 
-        function cerrarQuickView() {
-            document.getElementById('modal-quick-view').classList.add('hidden');
-            document.getElementById('modal-quick-view').classList.remove('flex');
-        }
+        function cerrarQuickView() { cerrarModal('modal-quick-view'); }
 
         function qvCambiarColor(prodId, colorId, colorNombre, imgUrl) {
             cambiarColor(prodId, colorId, colorNombre, imgUrl); // Sincroniza con grilla
@@ -515,7 +620,7 @@
                     <div class="aspect-[4/5] bg-stone-100 relative overflow-hidden border-b border-brand-border group cursor-pointer" onclick="abrirQuickView('${p.id}')">
                         <img src="${imgFinal}" alt="${p.nombre}" class="w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:opacity-90" id="img-prod-${p.id}" onerror="this.src='${getPlaceholder('SKU '+p.sku)}'">
                         <div class="absolute inset-0 bg-black/10 hidden group-hover:flex items-center justify-center transition">
-                            <span class="bg-white text-brand-text text-[10px] font-bold px-3 py-1.5 rounded shadow-lg uppercase tracking-wider"><i class="fas fa-search-plus mr-1"></i> Ver</span>
+                            <span class="bg-white text-brand-text text-[10px] font-bold px-3 py-1.5 rounded shadow-lg uppercase tracking-wider"><i class="fas fa-search-plus mr-1"></i> Ver Detalle</span>
                         </div>
                     </div>
                     
@@ -786,8 +891,7 @@
         }
 
         function cerrarModalEdicion() { 
-            document.getElementById('modal-edicion').classList.add('hidden'); 
-            document.getElementById('modal-edicion').classList.remove('flex'); 
+            cerrarModal('modal-edicion');
         }
 
         function subirFotoIndividual(e, prodId, colorIndex) {
