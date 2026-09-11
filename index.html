@@ -143,10 +143,12 @@
         </main>
         
         <!-- FOOTER MARCA GESTO SMART -->
-        <footer class="py-8 text-center mt-auto border-t border-brand-border/50">
-            <p class="text-[10px] uppercase tracking-widest text-brand-text/50 font-bold">
-                Tecnología <i class="fas fa-bolt text-brand-accent mx-1"></i> <span class="text-brand-accent">Gesto Smart</span>
-            </p>
+        <footer class="py-6 text-center mt-auto border-t border-brand-border/30 bg-brand-bg">
+            <div class="flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                <span class="text-[11px] text-brand-text font-medium tracking-wide">creado con</span>
+                <i class="fas fa-layer-group text-brand-text text-sm"></i>
+                <span class="text-xs text-brand-text font-bold tracking-tight">Gesto Smart</span>
+            </div>
         </footer>
     </div>
 
@@ -229,14 +231,11 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="compartirTienda()" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-3 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-share-alt text-brand-accent"></i> <span class="hidden md:inline ml-2">Compartir Link</span>
+                <button onclick="compartirTienda()" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                    <i class="fas fa-share-alt mr-2 text-brand-accent"></i> Compartir Link
                 </button>
-                <button onclick="window.open(window.location.href.split('?')[0], '_blank')" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-3 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-external-link-alt text-brand-accent"></i> <span class="hidden md:inline ml-2">Ver Tienda</span>
-                </button>
-                <button onclick="cerrarSesion()" class="bg-brand-accent text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-lock mr-2"></i> Cerrar Admin
+                <button onclick="cerrarSesion()" class="bg-brand-accent text-white px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                    <i class="fas fa-store mr-2"></i> Ir al Catálogo
                 </button>
             </div>
         </header>
@@ -326,10 +325,12 @@
         </main>
 
         <!-- FOOTER MARCA GESTO SMART ADMIN -->
-        <footer class="py-6 text-center mt-auto border-t border-brand-border/50">
-            <p class="text-[10px] uppercase tracking-widest text-brand-text/50 font-bold">
-                Tecnología <span class="text-brand-accent">Gesto Smart</span> ERP
-            </p>
+        <footer class="py-6 text-center mt-auto border-t border-brand-border/50 bg-stone-50">
+            <div class="flex items-center justify-center gap-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-default">
+                <span class="text-[11px] text-brand-text font-medium tracking-wide">creado con</span>
+                <i class="fas fa-layer-group text-brand-text text-sm"></i>
+                <span class="text-xs text-brand-text font-bold tracking-tight">Gesto Smart</span>
+            </div>
         </footer>
     </div>
 
@@ -532,7 +533,40 @@
             }).catch(function(err) { initApp(); });
         });
 
-        function salvar() { localforage.setItem('gesto_hippie_idb', db).catch(function(err) { toast("❌ Error al guardar base de datos."); }); }
+        function salvar() {
+            localforage.setItem('gesto_hippie_idb', db).then(() => {
+                if(typeof firestoreDb !== 'undefined' && firestoreDb) {
+                    firestoreDb.collection("lite_erp").doc("catalogo_nare").set(db).catch(e => console.error("Error Firebase:", e));
+                }
+            }).catch(function(err) { toast("❌ Error al guardar base de datos."); });
+        }
+
+        // Firebase Sync
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzgIYRyMFLL616w_OhOO_dC6bR7df5kCI",
+            authDomain: "catalogo-sami.firebaseapp.com",
+            projectId: "catalogo-sami",
+            storageBucket: "catalogo-sami.firebasestorage.app",
+            messagingSenderId: "82548197889",
+            appId: "1:82548197889:web:50330ffc4b55d640ef8e00"
+        };
+        
+        let firestoreDb = null;
+        try { 
+            if (typeof firebase !== 'undefined') { 
+                firebase.initializeApp(firebaseConfig); 
+                firestoreDb = firebase.firestore(); 
+                firebase.auth().signInAnonymously().catch(err => console.warn("Error en Auth:", err));
+                
+                firestoreDb.collection("lite_erp").doc("catalogo_nare").onSnapshot(doc => {
+                    if(doc.exists) { 
+                        db = doc.data();
+                        actualizarIdentidadVisual();
+                        renderProductos(); renderStockAdmin();
+                    }
+                });
+            } 
+        } catch(err) {}
 
         function aplicarPaleta(nombre) {
             const p = paletasPantone[nombre] || paletasPantone.suede;
