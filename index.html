@@ -755,7 +755,9 @@
             document.getElementById('edit-nombre').value = ''; document.getElementById('edit-precio').value = ''; 
             document.getElementById('grupo-crear-colores').classList.remove('hidden'); document.getElementById('edit-colores-texto').value = 'General';
             document.getElementById('grupo-editar-fotos').classList.add('hidden');
-            abrirModalUI('modal-edicion');
+            
+            document.getElementById('modal-edicion').classList.remove('hidden'); 
+            document.getElementById('modal-edicion').classList.add('flex');
         }
 
         function abrirModalEdicion(id) {
@@ -778,10 +780,15 @@
                     </div>
                 </div>`;
             }).join('');
-            abrirModalUI('modal-edicion');
+            
+            document.getElementById('modal-edicion').classList.remove('hidden'); 
+            document.getElementById('modal-edicion').classList.add('flex');
         }
 
-        function cerrarModalEdicion() { document.getElementById('modal-edicion').classList.add('hidden'); document.getElementById('modal-edicion').classList.remove('flex'); }
+        function cerrarModalEdicion() { 
+            document.getElementById('modal-edicion').classList.add('hidden'); 
+            document.getElementById('modal-edicion').classList.remove('flex'); 
+        }
 
         function subirFotoIndividual(e, prodId, colorIndex) {
             const file = e.target.files[0]; if(!file) return;
