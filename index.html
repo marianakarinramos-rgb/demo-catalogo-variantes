@@ -77,7 +77,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     </style>
 </head>
-<body class="font-sans antialiased pb-24 relative">
+<body class="font-sans antialiased pb-24 relative flex flex-col min-h-screen">
 
     <div id="carga-overlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-[99999] backdrop-blur-sm">
         <div class="text-center bg-white p-6 rounded-lg shadow-xl">
@@ -94,9 +94,9 @@
     <!-- ============================================== -->
     <!-- 1. VISTA TIENDA -->
     <!-- ============================================== -->
-    <div id="vista-tienda">
+    <div id="vista-tienda" class="flex-grow">
         <!-- BANNER PWA -->
-        <div id="pwa-install-banner" class="hidden bg-brand-accent/10 border border-brand-accent/30 rounded-2xl p-4 mx-6 mt-4 flex items-center justify-between fade-in shadow-sm">
+        <div id="pwa-install-banner" class="hidden bg-brand-accent/10 border border-brand-accent/30 rounded-2xl p-4 mx-6 mt-4 flex items-center justify-between fade-in shadow-sm max-w-7xl lg:mx-auto">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-brand-accent text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-sm">
                     <i class="fas fa-mobile-alt"></i>
@@ -130,7 +130,7 @@
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-6 py-8">
+        <main class="max-w-7xl mx-auto px-6 py-8 flex-grow w-full">
             <div class="mb-8 max-w-lg mx-auto relative">
                 <i class="fas fa-search absolute left-4 top-3.5 text-brand-text/40"></i>
                 <input type="text" id="buscador" oninput="renderProductos()" placeholder="Buscá por SKU o nombre..." class="w-full bg-white border border-brand-border text-brand-text pl-11 pr-10 py-3 rounded-lg outline-none focus:border-brand-accent transition shadow-sm text-sm font-medium">
@@ -141,6 +141,13 @@
             
             <div id="grid-productos" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5"></div>
         </main>
+        
+        <!-- FOOTER MARCA GESTO SMART -->
+        <footer class="py-8 text-center mt-auto border-t border-brand-border/50">
+            <p class="text-[10px] uppercase tracking-widest text-brand-text/50 font-bold">
+                Tecnología <i class="fas fa-bolt text-brand-accent mx-1"></i> <span class="text-brand-accent">Gesto Smart</span>
+            </p>
+        </footer>
     </div>
 
     <!-- Modal Quick View -->
@@ -212,7 +219,7 @@
     <!-- ============================================== -->
     <!-- 2. VISTA ADMIN -->
     <!-- ============================================== -->
-    <div id="vista-admin">
+    <div id="vista-admin" class="flex-grow">
         <header class="bg-white border-b border-brand-border px-6 py-4 flex flex-col md:flex-row justify-between items-center shadow-sm gap-4">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-brand-accent text-white rounded-lg flex items-center justify-center text-lg"><i class="fas fa-sliders-h"></i></div>
@@ -222,16 +229,19 @@
                 </div>
             </div>
             <div class="flex gap-2">
-                <button onclick="compartirTienda()" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-share-alt mr-2 text-brand-accent"></i> Compartir Link
+                <button onclick="compartirTienda()" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-3 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                    <i class="fas fa-share-alt text-brand-accent"></i> <span class="hidden md:inline ml-2">Compartir Link</span>
                 </button>
-                <button onclick="cerrarSesion()" class="bg-brand-accent text-white px-4 py-2.5 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
-                    <i class="fas fa-store mr-2"></i> Ir al Catálogo
+                <button onclick="window.open(window.location.href.split('?')[0], '_blank')" class="bg-stone-100 hover:bg-stone-200 text-brand-text border border-brand-border px-3 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                    <i class="fas fa-external-link-alt text-brand-accent"></i> <span class="hidden md:inline ml-2">Ver Tienda</span>
+                </button>
+                <button onclick="cerrarSesion()" class="bg-brand-accent text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center shadow-sm">
+                    <i class="fas fa-lock mr-2"></i> Cerrar Admin
                 </button>
             </div>
         </header>
 
-        <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6">
+        <main class="flex-1 max-w-7xl mx-auto w-full p-6 space-y-6 flex-grow">
             <div class="bg-white border border-brand-border rounded-xl p-6 shadow-sm space-y-4">
                 <h3 class="font-serif text-lg text-brand-text">⚙️ Identidad y Seguridad</h3>
                 <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
@@ -296,7 +306,7 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm">
+            <div class="bg-white border border-brand-border rounded-xl overflow-hidden shadow-sm mb-4">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm text-brand-text">
                         <thead class="bg-stone-50 text-brand-text/60 font-semibold border-b border-brand-border text-[11px] uppercase tracking-wider">
@@ -314,6 +324,13 @@
                 </div>
             </div>
         </main>
+
+        <!-- FOOTER MARCA GESTO SMART ADMIN -->
+        <footer class="py-6 text-center mt-auto border-t border-brand-border/50">
+            <p class="text-[10px] uppercase tracking-widest text-brand-text/50 font-bold">
+                Tecnología <span class="text-brand-accent">Gesto Smart</span> ERP
+            </p>
+        </footer>
     </div>
 
     <!-- MODAL EDICIÓN Y CREACIÓN MANUAL -->
@@ -373,12 +390,12 @@
             const shareData = {
                 title: db.config.nombre || 'Mi Tienda',
                 text: `Mirá nuestro catálogo online:`,
-                url: window.location.href
+                url: window.location.href.split('?')[0]
             };
             if (navigator.share) {
                 navigator.share(shareData).catch(() => {});
             } else {
-                navigator.clipboard.writeText(window.location.href);
+                navigator.clipboard.writeText(window.location.href.split('?')[0]);
                 toast('¡Link del catálogo copiado!');
             }
         }
